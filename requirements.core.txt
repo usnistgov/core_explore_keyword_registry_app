@@ -1,0 +1,1 @@
+core-explore-keyword-app==1.0.0-beta2
