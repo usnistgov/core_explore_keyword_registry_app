@@ -1,0 +1,18 @@
+""" Apps file for setting core package when app is ready
+"""
+from django.apps import AppConfig
+from core_explore_keyword_registry_app import discover
+
+
+class ExploreKeywordRegistryAppConfig(AppConfig):
+    """ Explore Keyword Registry application settings
+    """
+    name = 'core_explore_keyword_registry_app'
+
+    def ready(self):
+        """ Run when the app is ready.
+
+        Returns:
+
+        """
+        discover.init_xslt()
