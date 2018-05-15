@@ -1,7 +1,8 @@
 """ Apps file for setting core package when app is ready
 """
 from django.apps import AppConfig
-from core_explore_keyword_registry_app import discover
+from core_explore_keyword_registry_app import discover as discover_xslt
+from core_explore_keyword_registry_app.permissions import discover as discover_permissions
 
 
 class ExploreKeywordRegistryAppConfig(AppConfig):
@@ -15,4 +16,5 @@ class ExploreKeywordRegistryAppConfig(AppConfig):
         Returns:
 
         """
-        discover.init_xslt()
+        discover_xslt.init_xslt()
+        discover_permissions.init_permissions(self.apps)
