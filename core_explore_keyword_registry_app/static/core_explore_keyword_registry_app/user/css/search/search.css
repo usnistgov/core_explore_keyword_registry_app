@@ -1,0 +1,61 @@
+div[name="result"] a, div[name="result"] a:link {
+    color: #08c;
+    text-decoration: none;
+    border: 0;
+}
+
+a[class=""] .fa-chevron-down {
+   display: none;
+}
+
+a[class="collapsed"] .fa-chevron-up {
+   display: none;
+}
+
+.title {
+    font-size: 1.2em;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.collapseXSLT {
+    color: #000000;
+    display: block;
+    width: auto;
+    background-image: none;
+    height: auto;
+    display: none;
+}
+
+.keywords {
+    color: #000000;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.description {
+    text-align: justify;
+    text-justify: inter-word;
+    line-height: 1.2em;
+    margin-bottom: 0em;
+}
+
+.black {
+    color: #000000;
+}
+
+.white-bg {
+    background-color: #ffffff;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.shortcontent, .allcontent {
+    display: inline;
+}
+
+.tools-menu .btn {
+    text-align: left;
+}

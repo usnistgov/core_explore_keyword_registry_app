@@ -1,0 +1,13 @@
+{% load render_extras %}
+
+<div name="result">
+    <div class="col-md-1">
+        {% if exporter_app %}
+            <input data-template-id="{{result.template_info.id}}" data-template-hash="{{result.template_info.hash}}"
+                   type="checkbox" value="{{ result.access_data_url }}" />
+        {% endif %}
+    </div>
+    <div class="col-md-11">
+        {% render_as_template xml_representation %}
+    </div>
+</div>

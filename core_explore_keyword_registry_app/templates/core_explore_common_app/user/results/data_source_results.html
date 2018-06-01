@@ -1,0 +1,16 @@
+{% load xsl_transform_tag %}
+{% load staticfiles %}
+
+<link rel="stylesheet" href="{% static 'core_explore_keyword_registry_app/user/css/search/search.css' %}" />
+<script src="{% static 'core_explore_keyword_registry_app/user/libs/jquery-shorten/1.1.0/jquery.shorten.js' %}"></script>
+<script src="{% static 'core_explore_keyword_registry_app/user/js/search/search.js' %}"></script>
+
+{% for result in results %}
+    {% xsl_transform_list xml_content=result.xml_content template_id=result.template_info.id template_hash=result.template_info.hash as xml_representation%}
+    {% include 'core_explore_common_app/user/results/data_source_info.html' with xml_representation=xml_representation|safe %}
+{% empty %}
+<h4> No results were found.</h4>
+{% endfor %}
+
+{% include 'core_explore_common_app/user/results/data_source_pagination.html'%}
+

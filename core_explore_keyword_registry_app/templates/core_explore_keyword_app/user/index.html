@@ -1,0 +1,38 @@
+<div class="container">
+    <form action="{% url 'core_explore_keyword_app_search' %}" method="POST">
+        {% csrf_token %}
+        <div class="row_index">
+            <div class="col-sm-12">
+                {% include 'core_explore_keyword_app/user/search_bar.html' %}
+            </div>
+             <div class="dropdown col-sm-offset-9 col-sm-12">
+                <button class="btn btn-link dropdown-toggle" type="button"
+                        id="dropdownMenu"  data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">
+                    Tools
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu tools-menu" aria-labelledby="dropdownMenu">
+                    {% if data.display_persistent_query_button %}
+                        <li>
+                            {% include "core_explore_common_app/user/persistent_query/button_persistent_query.html" with url=data.get_shareable_link_url %}
+                        </li>
+                    {% endif %}
+                    {% if data.exporter_app %}
+                        <li>
+                            {% include "core_exporters_app/user/exporters/list/link_exporters_selector.html" %}
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-sm-3">
+                {% include data.data_sources_selector_template %}
+            </div>
+            <div class="col-sm-9">
+                {% include "core_explore_common_app/user/results/results.html" %}
+            </div>
+        </div>
+    </form>
+</div>
+
+
