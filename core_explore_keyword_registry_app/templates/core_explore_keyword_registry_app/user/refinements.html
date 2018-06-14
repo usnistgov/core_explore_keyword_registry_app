@@ -1,0 +1,25 @@
+{{ data.refinement_form.media }}
+
+<div class="panel-group" id="refinements">
+{% for field in data.refinement_form %}
+	  <div class="panel panel-default">
+		<div class="panel-heading">
+			<a class="clearTree" href="javascript:void(0)" onclick="clearTree('#{{field.id_for_label}}', this)">
+				(Clear)
+			</a>
+			<h4 class="panel-title refinement">
+				<a data-toggle="collapse" href="#collapse_{{field.id_for_label}}" class="{% if forloop.counter != 1 %}collapsed{% endif %}">
+					<i class="fa fa-chevron-up"></i>
+					<i class="fa fa-chevron-down"></i>
+					{{ field.label_tag }}
+				</a>
+			</h4>
+		</div>
+		<div id="collapse_{{field.id_for_label}}" class="panel-collapse collapse{% if forloop.counter == 1 %} in {% endif %}">
+			<div class="panel-body">
+                {{ field }}
+			</div>
+		</div>
+	  </div>
+{% endfor %}
+</div>

@@ -1,0 +1,37 @@
+.clearTree {
+    float: right;
+    margin: 0px;
+    padding:0px;
+    color: black;
+    font-size: small;
+    border: none;
+}
+
+.refinement a[class=""] .fa-chevron-up {
+   display: none;
+}
+
+.refinement a[class="collapsed"] .fa-chevron-down {
+   display: none;
+}
+
+.refinement label, .refinement a {
+    display: inline;
+    border: none;
+    font-size: 16pt;
+    font-weight: normal;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+#refinements .collapse {
+    background-image: none;
+    width: auto;
+    height:auto;
+    margin-left: auto;
+    margin-right: auto;
+    display: none;
+}
+
+#refinements .collapse.in {
+    display: block;
+}
