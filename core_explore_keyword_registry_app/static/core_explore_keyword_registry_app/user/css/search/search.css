@@ -4,11 +4,11 @@ div[name="result"] a, div[name="result"] a:link {
     border: 0;
 }
 
-a[class=""] .fa-chevron-down {
+div[name="result"] a[class=""] .fa-chevron-down {
    display: none;
 }
 
-a[class="collapsed"] .fa-chevron-up {
+div[name="result"] a[class="collapsed"] .fa-chevron-up {
    display: none;
 }
 
