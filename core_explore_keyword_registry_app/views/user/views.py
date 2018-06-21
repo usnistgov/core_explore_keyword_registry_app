@@ -2,11 +2,11 @@
 """
 import json
 
+import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
 from core_explore_common_app.components.query import api as query_api
 from core_explore_keyword_app.views.user.views import KeywordSearchView
 from core_explore_keyword_registry_app.views.user.forms import RefinementForm
 from core_main_app.commons.exceptions import DoesNotExist
-from core_main_registry_app.utils.refinement.mongo_query import build_refinements_query
 
 
 class KeywordSearchRegistryView(KeywordSearchView):
@@ -22,8 +22,21 @@ class KeywordSearchRegistryView(KeywordSearchView):
 
         """
         context = super(KeywordSearchRegistryView, self)._get(user, query_id)
-        # TODO: refill the form with selected values
-        context.update({'refinement_form': RefinementForm()})
+        data_form = {}
+        if query_id is not None:
+            try:
+                # get the query id
+                query = query_api.get_by_id(query_id)
+                # get all keywords back
+                refinement_selected_values = mongo_query_api.get_refinement_selected_values_from_query(
+                    json.loads(query.content)
+                )
+                # build the data_form structure
+                for key in refinement_selected_values:
+                    data_form.update({RefinementForm.prefix + '-' + key: refinement_selected_values[key]})
+            except Exception, e:
+                context.update({'error': "An unexpected error occurred while loading the query: {}.".format(e.message)})
+        context.update({'refinement_form': RefinementForm(data=data_form)})
         return context
 
     def _post(self, request):
@@ -55,7 +68,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
             if len(refinements) > 0:
                 try:
                     # get refinement query
-                    refinement_query = build_refinements_query(refinements)
+                    refinement_query = mongo_query_api.build_refinements_query(refinements)
                     # if we have a refinement query
                     if len(refinement_query.keys()) > 0:
                         # get query from database

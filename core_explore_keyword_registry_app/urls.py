@@ -8,7 +8,7 @@ from core_explore_keyword_registry_app.views.user import views as registry_views
 urlpatterns = [
     url(r'^$', registry_views.KeywordSearchRegistryView.as_view(),
         name='core_explore_keyword_app_search'),
-    url(r'^(?P<query_id>\w+)$', user_views.KeywordSearchView.as_view(),
+    url(r'^(?P<query_id>\w+)$', registry_views.KeywordSearchRegistryView.as_view(),
         name='core_explore_keyword_app_search'),
     url(r'^get-persistent-query-url$', user_ajax.CreatePersistentQueryUrlKeywordView.as_view(),
         name='core_explore_keyword_get_persistent_query_url'),
