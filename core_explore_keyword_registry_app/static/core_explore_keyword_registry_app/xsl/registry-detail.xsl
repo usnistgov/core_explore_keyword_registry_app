@@ -4,10 +4,10 @@
 	<xsl:output method="html" indent="yes" encoding="UTF-8" />
 
 	<xsl:template match="/">
-		<h1><xsl:value-of select="//nr:Resource/nr:identity/nr:title"/></h1>
-		<span style="display:block;"><strong>Resource Type: </strong><xsl:value-of select="//nr:Resource/nr:role/nr:type"/></span>
-		<span style="display:block;"><strong>Local ID: </strong><xsl:value-of select="//nr:Resource/@localid"/></span>
-		<span style="display:block;"><strong>Status: </strong><xsl:value-of select="//nr:Resource/@status"/></span>
+		<h1 style="color: #000;font-size: 2.7em;margin-bottom: 10px;"><xsl:value-of select="//nr:Resource/nr:identity/nr:title"/></h1>
+		<span style="display:block;color: #888;"><strong>Resource Type: </strong><xsl:value-of select="//nr:Resource/nr:role/nr:type"/></span>
+		<span style="display:block;color: #888;"><strong>Local ID: </strong><xsl:value-of select="//nr:Resource/@localid"/></span>
+		<span style="display:block;color: #888;"><strong>Status: </strong><xsl:value-of select="//nr:Resource/@status"/></span>
 
 		<xsl:for-each select="//*[(*)]">
 			<xsl:variable name="branchName" select="name(.)" />
@@ -21,7 +21,7 @@
 			<div>
 				<xsl:choose>
 					<xsl:when test="count(ancestor::node())=2" >
-						<h3>
+						<h3 style="letter-spacing: -1px;font-weight: 500;font-size: 1.7em;color: #699BBA;">
 							<xsl:call-template name="formatText">
 								<xsl:with-param name="current" select="$branchName" />
 							</xsl:call-template>
@@ -51,7 +51,7 @@
 						<xsl:when test="preceding-sibling::node()[name()=$name]" >
 						</xsl:when>
 						<xsl:otherwise>
-							<span style="display:block;">
+							<span style="display:block;color: #888;">
 								<strong>
 									<xsl:call-template name="formatText">
 										<xsl:with-param name="prefix" select="$prefix" />
@@ -70,7 +70,7 @@
 					<xsl:apply-templates select="@*" />
 				</xsl:when>
 				<xsl:otherwise>
-					<span style="display:block;">
+					<span style="display:block;color: #888;">
 						<strong>
 							<xsl:call-template name="formatText">
 								<xsl:with-param name="prefix" select="$prefix" />
