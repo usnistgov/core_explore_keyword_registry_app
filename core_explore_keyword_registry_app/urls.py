@@ -4,8 +4,11 @@
 from django.conf.urls import url
 from core_explore_keyword_app.views.user import views as user_views, ajax as user_ajax
 from core_explore_keyword_registry_app.views.user import views as registry_views
+from core_explore_keyword_registry_app.views.user import ajax as registry_ajax
 
 urlpatterns = [
+    url(r'^get-refinement-count', registry_ajax.RefinementCountView.as_view(),
+        name='core_explore_keyword_refinement_count'),
     url(r'^$', registry_views.KeywordSearchRegistryView.as_view(),
         name='core_explore_keyword_app_search'),
     url(r'^(?P<query_id>\w+)$', registry_views.KeywordSearchRegistryView.as_view(),

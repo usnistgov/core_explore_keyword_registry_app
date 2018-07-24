@@ -23,7 +23,8 @@ class RefinementForm(forms.Form):
                                                                           required=False,
                                                                           label=refinement.name,
                                                                           widget=FancyTreeWidget(
-                                                                              queryset=categories))
+                                                                              queryset=categories,
+                                                                              count_mode=True))
 
             self.fields[refinement.slug].has_selected_values = \
                 kwargs.get('data').get("{0}-{1}".format(self.prefix, refinement.slug)) is not None

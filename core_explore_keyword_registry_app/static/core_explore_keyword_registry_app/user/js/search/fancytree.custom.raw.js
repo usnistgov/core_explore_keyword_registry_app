@@ -1,0 +1,1 @@
+var data_source_count = "{% url 'core_explore_keyword_refinement_count' %}";

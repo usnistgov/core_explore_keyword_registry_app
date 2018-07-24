@@ -1,1 +1,4 @@
 core-explore-keyword-app==1.0.0-beta4
+# FIXME: Remove when data source decoupled. See build_count() in ajax.py.
+core-explore-oaipmh-app==1.0.0-beta5
+core-oaipmh-harvester-app==1.0.0-beta4
