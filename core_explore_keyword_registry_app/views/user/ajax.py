@@ -26,18 +26,20 @@ logger = getLogger(__name__)
 
 class RefinementCountView(View):
     """ Refinement count. """
-    query = None
-    match = None
-    unwind = None
-    group = None
-    request = None
-    results = []
-
     id_key = '_id'
     count_key = 'count'
     ids_key = 'ids'
     data_field = 'dict_content'
     unknown_value = 'Unknown'
+
+    def __init__(self, **kwargs):
+        super(RefinementCountView, self).__init__(**kwargs)
+        self.query = None
+        self.match = None
+        self.unwind = None
+        self.group = None
+        self.request = None
+        self.results = []
 
     def get(self, request, *args, **kwargs):
         try:
