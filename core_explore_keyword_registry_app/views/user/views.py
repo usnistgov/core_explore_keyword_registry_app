@@ -25,6 +25,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         """
         context = super(KeywordSearchRegistryView, self)._get(user, query_id)
         data_form = {}
+        refinement_selected_types = []
         if query_id is not None:
             try:
                 # get the query id
@@ -35,10 +36,17 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 )
                 # build the data_form structure
                 for key in refinement_selected_values:
-                    data_form.update({RefinementForm.prefix + '-' + key: refinement_selected_values[key]})
+                    data_form.update({RefinementForm.prefix + '-' + key: [element["id"]
+                                                                          for element
+                                                                          in refinement_selected_values[key]]})
+                    refinement_selected_types = [element["value"] for element in refinement_selected_values[key]]
+
             except Exception, e:
                 context.update({'error': "An unexpected error occurred while loading the query: {}.".format(e.message)})
+
         context.update({'refinement_form': RefinementForm(data=data_form)})
+        # get all categories which must be selected in the table
+        context.update({'refinement_selected_types': refinement_selected_types})
         return context
 
     def _post(self, request):
@@ -100,6 +108,12 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 context.update({'error': error})
 
         context.update({'refinement_form': refinement_form})
+
+        # get all categories which must be selected in the table
+        if refinement_form.cleaned_data:
+            selected_types = refinement_form.cleaned_data['type']
+            context.update({'refinement_selected_types': get_all_parent_name_from_category_list(selected_types)})
+
         return context
 
     def _load_assets(self):
@@ -113,12 +127,33 @@ class KeywordSearchRegistryView(KeywordSearchView):
         # add all assets needed
         assets['js'].extend([
             {
-                "path": 'core_explore_keyword_registry_app/user/js/search/fancytree.custom.js',
+                "path": "core_explore_keyword_registry_app/user/js/search/fancytree.custom.js",
+                "is_raw": False
+            },
+            {
+                "path": "core_explore_keyword_registry_app/user/js/search/resource_type_icons_table.js",
                 "is_raw": False
             },
         ])
 
-        assets['css'].extend(['core_explore_keyword_registry_app/user/css/fancytree/fancytree'
-                              '.custom.css',])
+        assets['css'].extend(["core_explore_keyword_registry_app/user/css/fancytree/fancytree.custom.css",
+                              "core_explore_keyword_registry_app/user/css/search/resource_type_icons_table.css"])
 
         return assets
+
+
+def get_all_parent_name_from_category_list(categories):
+    """ Get the first parent name's list from a category list given
+
+    Args:
+        categories:
+
+    Returns:
+
+    """
+    parents = []
+    for category in categories:
+        parent = category.get_root().name
+        if parent not in parents:
+            parents.append(parent)
+    return parents

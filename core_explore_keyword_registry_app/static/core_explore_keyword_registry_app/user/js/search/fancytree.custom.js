@@ -5,6 +5,8 @@ clearTree = function(div_tree, link) {
             root.visit(function(node){
                 node.setSelected(false);
             });
+            // trigger the event clearTree
+            $(document).trigger("clearTree", div_tree);
         }
     }
 }
