@@ -5,10 +5,7 @@
             <div class="col-sm-12">
                 {% include 'core_explore_keyword_app/user/search_bar.html' %}
             </div>
-            <div class="col-sm-12">
-                {% include 'core_explore_keyword_registry_app/user/resource_type_icons_table.html' %}
-            </div>
-             <div class="dropdown col-sm-offset-9 col-sm-12">
+            <div class="dropdown col-sm-offset-9 col-sm-12">
                 <button class="btn btn-link dropdown-toggle" type="button"
                         id="dropdownMenu"  data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
@@ -27,6 +24,9 @@
                         </li>
                     {% endif %}
                 </ul>
+            </div>
+            <div class="col-sm-12">
+                {% include 'core_explore_keyword_registry_app/user/resource_type_icons_table.html' %}
             </div>
             <div class="col-sm-3">
                 {% include data.data_sources_selector_template %}

@@ -1,4 +1,7 @@
-clearTree = function(div_tree, link) {
+/**
+ * When click on 'clear' in the refinement header
+ */
+var clearTree = function(div_tree, link) {
     if (!$(link).hasClass('disabled_refinements')) {
         var root =  $(div_tree).fancytree('getTree');
         if (root.length !== 0) {
@@ -50,3 +53,27 @@ var getRefinementsCount = function(){
         }
     });
 };
+
+/**
+ * Submit the form
+ */
+var submitForm = function () {
+    $("#form_search").submit();
+}
+
+/**
+ * Add fancy tree select delay handler to all checkbox for data source
+ */
+var addFancyTreeSelectDelayHandler = function(event) {
+    $("#data_sources_selector input:checkbox").on("click", fancyTreeSelectDelaySubmit);
+}
+
+// .ready() called.
+$(function() {
+    // bind event to fancy_tree_ready_event calls
+    $(document).on("fancy_tree_select_event", function(event, data){
+        fancyTreeSelectDelaySubmit(event, data);
+    });
+    // bind event to all data source selector
+    $("#data_sources_selector").on('DOMSubtreeModified', addFancyTreeSelectDelayHandler);
+});

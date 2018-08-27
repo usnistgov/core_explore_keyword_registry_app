@@ -8,6 +8,7 @@
     border-spacing: 10px;
     border-collapse: separate;
     margin: 0 auto;
+    padding: 15px;
 }
 
 #icons_table td {
