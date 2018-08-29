@@ -135,10 +135,14 @@ class RefinementCountView(View):
         Returns:
 
         """
-        refinement_path = '.'.join(categories[0].path.split('.')[:-1])
+        refinement_path = categories[0].path
+        ancestor_refinement_path = '.'.join(categories[0].path.split('.')[:-1])
         # Unwind the field.
         self.unwind = '{{ "$unwind" : {{ "path": "${0}.{1}", ' \
+                      '"preserveNullAndEmptyArrays": true }} }},' \
+                      '{{ "$unwind" : {{ "path": "${0}.{2}", ' \
                       '"preserveNullAndEmptyArrays": true }} }}'.format(self.data_field,
+                                                                        ancestor_refinement_path,
                                                                         refinement_path)
         # Group by category.
         self.group = '{{"$group": {{"{2}": {{"$let": {{"vars":{{ {0} }},"in": {1} }}}}' \
