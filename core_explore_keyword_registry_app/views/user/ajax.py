@@ -106,9 +106,9 @@ class RefinementCountView(View):
         Returns:
 
         """
-        # Update results (id: category_id, count: nb_results)
+        # Update results (id: category_id, count: nb_results). Use set() to avoid duplicates.
         for elt in res_map:
-            self.results.extend([{self.id_key: elt, self.count_key: len(res_map[elt])}])
+            self.results.extend([{self.id_key: elt, self.count_key: len(set(res_map[elt]))}])
 
         # Take care of the categories' group
         for category in categories:
