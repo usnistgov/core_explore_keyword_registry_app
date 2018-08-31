@@ -92,7 +92,7 @@ var selectRoleInTree = function(role, td_id) {
  * select / unselect all checkboxes
  */
 var selectAllCheckboxes = function(tree, root) {
-    var selected = areAllSelectedInTree(tree);
+    var selected = areAllSelectedInTypeTree(tree);
     if (root.length !== 0) {
         root.visit(function(node){
             node.setSelected(!selected);
@@ -101,9 +101,9 @@ var selectAllCheckboxes = function(tree, root) {
 }
 
 /**
- * Check if all the nodes are selected
+ * Check if all the nodes are selected in type tree
  */
-var areAllSelectedInTree = function() {
+var areAllSelectedInTypeTree = function() {
     var tree = getTypeTree();
     var allCount = tree.fancytree('getRootNode').tree.count()
     var selectedNodes = tree.fancytree('getRootNode').tree.getSelectedNodes();
@@ -141,6 +141,7 @@ var fancyTreeSelectHandler = function(event, data){
     if (data.originalEvent){
         last_parent = getFirstParendNode(data.node);
         select_resource = false;
+        targeted_td = null;
 
         // if the parent contains checked children
         if (last_parent.getSelectedNodes().length > 0
@@ -167,17 +168,19 @@ var fancyTreeSelectHandler = function(event, data){
             targeted_td = $("#td_" + resourceTypes.WebSite);
         }
 
-        // add or remove the css class
-        if (select_resource)
-            targeted_td.addClass("selected_resource");
-        else
-            targeted_td.removeClass("selected_resource");
+        if (targeted_td) {
+            // add or remove the css class
+            if (select_resource)
+                targeted_td.addClass("selected_resource");
+            else
+                targeted_td.removeClass("selected_resource");
 
-        if (areAllSelectedInTableExceptAll() && areAllSelectedInTree()){
-            // if 'all' is not selected
-            clearTable();
-            // select all
-            $("#td_" + resourceTypes.All).addClass("selected_resource");
+            if (areAllSelectedInTableExceptAll() && areAllSelectedInTypeTree()){
+                // if 'all' is not selected
+                clearTable();
+                // select all
+                $("#td_" + resourceTypes.All).addClass("selected_resource");
+            }
         }
     }
 };
@@ -203,13 +206,17 @@ var selectTreeNodeByRole = function(role, root) {
     root.visit(function(node){
         if (node.title.includes(node_title)) {
             if (isRoleInIconTableIsSelected(role)) {
-                if (areAllSelectedInTree()){
-                    // unselected all
-                    root.visit(function(node){
-                        node.setSelected(false);
+                if (areAllSelectedInTypeTree()){
+                    // unselected all except the targeted node
+                    root.visit(function(root_node){
+                        if (root_node.key != node.key)
+                            root_node.setSelected(false);
+                        else
+                            root_node.setSelected(true);
                     });
+                } else {
+                    node.setSelected(true);
                 }
-                node.setSelected(true);
             } else {
                 parent_node = getFirstParendNode(node);
                 parent_node.visit(function(node){
@@ -254,7 +261,7 @@ var fancyTreeReadyHandler = function(event, data) {
     var root = tree.fancytree('getTree');
     if (root == data.tree) {
         // if all Type are selected after a submit
-        if (areAllSelectedInTree(tree)) {
+        if (areAllSelectedInTypeTree(tree)) {
             clearTable();
             $("#td_all").addClass("selected_resource");
         }
@@ -274,7 +281,7 @@ $(function() {
     $("#td_" + resourceTypes.WebSite).on("click", {role: resourceTypes.WebSite}, selectIcon);
     $("#td_" + resourceTypes.Software).on("click", {role: resourceTypes.Software}, selectIcon);
     // bind event to clearTree calls
-    $(document).on("clearTree", function(event, div_tree){
+    $(document).on("clearTypeTree", function(event, div_tree){
         clearTable();
     });
     // bind event to fancy_tree_select_event calls

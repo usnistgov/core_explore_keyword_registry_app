@@ -1,0 +1,16 @@
+.filters-refinements {
+    margin-top: -10px;
+    padding-bottom: 20px;
+}
+
+.filters-refinements ul {
+    margin: 10px 0px 10px 0px; !important;
+}
+
+.filters-refinements .ui-widget.ui-widget-content {
+    border: None !important;
+}
+
+.filters-refinements .ui-autocomplete-input {
+    cursor: default !important;
+}

@@ -28,6 +28,16 @@
             <div class="col-sm-12">
                 {% include 'core_explore_keyword_registry_app/user/resource_type_icons_table.html' %}
             </div>
+            <div class="col-sm-12">
+                <div id="filters_refinements" class="filters-refinements">
+                    <text>Search criteria used
+                        (<a href="javascript:void(0)" class="clearAll">Clear all</a>):
+                    </text>
+                    <div id="results_infos"></div>
+                    <input id="category-filters" />
+                    <div class="category-list" style="display: none;">{{data.category_list}}</div>
+                </div>
+            </div>
             <div class="col-sm-3">
                 {% include data.data_sources_selector_template %}
                 {% include "core_explore_keyword_registry_app/user/refinements.html" %}

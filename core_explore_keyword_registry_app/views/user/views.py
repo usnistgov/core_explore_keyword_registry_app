@@ -26,6 +26,8 @@ class KeywordSearchRegistryView(KeywordSearchView):
         context = super(KeywordSearchRegistryView, self)._get(user, query_id)
         data_form = {}
         refinement_selected_types = []
+        category_list = ""
+
         if query_id is not None:
             try:
                 # get the query id
@@ -36,11 +38,18 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 )
                 # build the data_form structure
                 for key in refinement_selected_values:
-                    data_form.update({RefinementForm.prefix + '-' + key: [element["id"]
-                                                                          for element
-                                                                          in refinement_selected_values[key]]})
-                    refinement_selected_types = [element["value"] for element in refinement_selected_values[key]]
-
+                    for display_name in refinement_selected_values[key]:
+                        list_element = refinement_selected_values[key][display_name]
+                        data_form.update({RefinementForm.prefix + '-' + key: [element["id"]
+                                                                              for element
+                                                                              in list_element]})
+                        refinement_selected_types = [element["value"] for element in list_element]
+                        # create the list of category
+                        if len(refinement_selected_values[key]) > 0:
+                            category_list = "%s,%s|%s" % (category_list,
+                                                          display_name,
+                                                          key)
+                        context.update({'category_list': category_list})
             except Exception, e:
                 context.update({'error': "An unexpected error occurred while loading the query: {}.".format(e.message)})
 
@@ -111,8 +120,18 @@ class KeywordSearchRegistryView(KeywordSearchView):
 
         # get all categories which must be selected in the table
         if refinement_form.cleaned_data:
-            selected_types = refinement_form.cleaned_data['type']
-            context.update({'refinement_selected_types': get_all_parent_name_from_category_list(selected_types)})
+            selected_types = refinement_form.cleaned_data.get('type', None)
+            # create the list of type
+            if selected_types:
+                context.update({'refinement_selected_types': get_all_parent_name_from_category_list(selected_types)})
+            # create the list of category
+            category_list = ""
+            for key in refinement_form.cleaned_data:
+                if len(refinement_form.cleaned_data[key]) > 0:
+                    category_list = "%s,%s|%s" % (category_list,
+                                                  refinement_form.cleaned_data[key][0].refinement.name,
+                                                  key)
+            context.update({'category_list': category_list})
 
         return context
 
@@ -127,6 +146,10 @@ class KeywordSearchRegistryView(KeywordSearchView):
         # add all assets needed
         assets['js'].extend([
             {
+                "path": "core_explore_keyword_registry_app/user/js/search/tagit.custom.js",
+                "is_raw": False
+            },
+            {
                 "path": "core_explore_keyword_registry_app/user/js/search/fancytree.custom.js",
                 "is_raw": False
             },
@@ -134,10 +157,15 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 "path": "core_explore_keyword_registry_app/user/js/search/resource_type_icons_table.js",
                 "is_raw": False
             },
+            {
+                "path": "core_explore_keyword_registry_app/user/js/search/filters.js",
+                "is_raw": False
+            },
         ])
 
         assets['css'].extend(["core_explore_keyword_registry_app/user/css/fancytree/fancytree.custom.css",
-                              "core_explore_keyword_registry_app/user/css/search/resource_type_icons_table.css"])
+                              "core_explore_keyword_registry_app/user/css/search/resource_type_icons_table.css",
+                              "core_explore_keyword_registry_app/user/css/search/filters.css"])
 
         return assets
 
