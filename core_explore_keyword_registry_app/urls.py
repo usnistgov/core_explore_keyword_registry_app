@@ -9,7 +9,7 @@ from core_explore_keyword_registry_app.views.user import ajax as registry_ajax
 urlpatterns = [
     url(r'^get-refinement-count', registry_ajax.RefinementCountView.as_view(),
         name='core_explore_keyword_refinement_count'),
-    url(r'^suggestions$', user_ajax.SuggestionsKeywordSearchView.as_view(),
+    url(r'^suggestions$', registry_ajax.SuggestionsKeywordRegistrySearchView.as_view(),
         name='core_explore_keyword_suggestions'),
     url(r'^$', registry_views.KeywordSearchRegistryView.as_view(),
         name='core_explore_keyword_app_search'),

@@ -11,6 +11,33 @@ from core_main_app.commons.exceptions import DoesNotExist
 from core_main_app.utils.query.constants import VISIBILITY_OPTION, VISIBILITY_PUBLIC
 
 
+def set_visibility_to_query(query):
+    """ Set visibility to public.
+
+    Args:
+        query:
+    Returns:
+    """
+    # Set visibility option for local data source
+    for data_source in query.data_sources:
+        # find local data source
+        if data_source.name == LOCAL_QUERY_NAME:
+            # set visibility to public
+            data_source.query_options = {VISIBILITY_OPTION: VISIBILITY_PUBLIC}
+            break
+
+
+def update_content_not_deleted_status_criteria(content):
+    """ Only not DELETED records.
+
+    Args:
+        content:
+
+    Returns:
+    """
+    content.update(mongo_query_api.add_not_deleted_status_criteria())
+
+
 class KeywordSearchRegistryView(KeywordSearchView):
 
     def _get(self, user, query_id):
@@ -78,17 +105,14 @@ class KeywordSearchRegistryView(KeywordSearchView):
         if refinement_form.is_valid() and error is None and query_id is not None:
             try:
                 query = query_api.get_by_id(query_id)
-                # Set visibility option for local data source
-                for data_source in query.data_sources:
-                    # find local data source
-                    if data_source.name == LOCAL_QUERY_NAME:
-                        # set visibility to public
-                        data_source.query_options = {VISIBILITY_OPTION: VISIBILITY_PUBLIC}
-                        break
+
+                # Set visibility
+                set_visibility_to_query(query)
+
                 content = json.loads(query.content)
 
-                # Only not DELETED records
-                content.update(mongo_query_api.add_not_deleted_status_criteria())
+                # Update content with status
+                update_content_not_deleted_status_criteria(content)
                 refinements = []
 
                 # get selected refinements (categories)
