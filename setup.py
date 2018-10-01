@@ -22,7 +22,7 @@ chdir(normpath(join(abspath(__file__), pardir)))
 
 setup(
     name="core_explore_keyword_registry_app",
-    version="1.0.0-alpha3",
+    version="1.0.0-beta1",
     description="Exploration by keywords for the registry project",
     long_description=long_desc,
     author="NIST IT Lab",
