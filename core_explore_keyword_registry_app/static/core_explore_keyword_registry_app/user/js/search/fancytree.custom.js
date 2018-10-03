@@ -83,13 +83,6 @@ var getRefinementsCount = function(){
 };
 
 /**
- * Submit the form
- */
-var submitForm = function () {
-    $("#form_search").submit();
-}
-
-/**
  * Add fancy tree select delay handler to all checkbox for data source
  */
 var addFancyTreeSelectDelayHandler = function(event) {
@@ -100,10 +93,19 @@ var addFancyTreeSelectDelayHandler = function(event) {
 $(function() {
     // bind event to fancy_tree_ready_event calls
     $(document).on("fancy_tree_select_event", function(event, data){
-        fancyTreeSelectDelaySubmit(event, data);
+        fancyTreeSelectDelaySubmit();
     });
     // bind event to clean all button
     $(".clearAll").on("click", clearAllTrees);
     // bind event to all data source selector
     $("#data_sources_selector").on('DOMSubtreeModified', addFancyTreeSelectDelayHandler);
+    // bind event to all header
+    $("a[data-toggle='collapse']").each(function(index) {
+        $(this).click(function(event) {
+            if (!event.originalEvent) return;
+            // reset the timer when an header is clicked
+            // avoiding unwanted submission
+            fancyTreeSelectDelaySubmit(false);
+        });
+    });
 });

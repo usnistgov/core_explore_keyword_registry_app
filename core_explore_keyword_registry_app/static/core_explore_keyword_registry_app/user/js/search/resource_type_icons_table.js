@@ -1,7 +1,6 @@
 /*
 * Resource type icons table javascript file.
 */
-var timer;
 
 /**
  * Resource type enumeration
