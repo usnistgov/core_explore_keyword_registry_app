@@ -3,6 +3,7 @@
 import json
 
 import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
+from core_explore_common_app.commons.exceptions import ExploreRequestError
 from core_explore_common_app.components.query import api as query_api
 from core_explore_common_app.constants import LOCAL_QUERY_NAME
 from core_explore_keyword_app.views.user.views import KeywordSearchView
@@ -54,31 +55,44 @@ class KeywordSearchRegistryView(KeywordSearchView):
         data_form = {}
         refinement_selected_types = []
         category_list = ""
+        query_id = context.get("query_id", None)
 
-        if query_id is not None:
-            try:
-                # get the query id
-                query = query_api.get_by_id(query_id)
-                # get all keywords back
-                refinement_selected_values = mongo_query_api.get_refinement_selected_values_from_query(
-                    json.loads(query.content)
-                )
-                # build the data_form structure
-                for key in refinement_selected_values:
-                    for display_name in refinement_selected_values[key]:
-                        list_element = refinement_selected_values[key][display_name]
-                        data_form.update({RefinementForm.prefix + '-' + key: [element["id"]
-                                                                              for element
-                                                                              in list_element]})
-                        refinement_selected_types = [element["value"] for element in list_element]
-                        # create the list of category
-                        if len(refinement_selected_values[key]) > 0:
-                            category_list = "%s,%s|%s" % (category_list,
-                                                          display_name,
-                                                          key)
-                        context.update({'category_list': category_list})
-            except Exception, e:
-                context.update({'error': "An unexpected error occurred while loading the query: {}.".format(e.message)})
+        # in case we don't find the query id in the context
+        # a default query is created by inheritance
+        if query_id is None:
+            raise ExploreRequestError("query id is missing")
+
+        try:
+            # get the query id
+            query = query_api.get_by_id(query_id)
+            # here we have to make sure to set the visibility and status criteria
+            # set visibility
+            set_visibility_to_query(query)
+            # load content
+            content = json.loads(query.content)
+            # update content with status
+            update_content_not_deleted_status_criteria(content)
+            query.content = json.dumps(content)
+            # save query
+            query_api.upsert(query)
+            # get all keywords back
+            refinement_selected_values = mongo_query_api.get_refinement_selected_values_from_query(content)
+            # build the data_form structure
+            for key in refinement_selected_values:
+                for display_name in refinement_selected_values[key]:
+                    list_element = refinement_selected_values[key][display_name]
+                    data_form.update({RefinementForm.prefix + '-' + key: [element["id"]
+                                                                          for element
+                                                                          in list_element]})
+                    refinement_selected_types = [element["value"] for element in list_element]
+                    # create the list of category
+                    if len(refinement_selected_values[key]) > 0:
+                        category_list = "%s,%s|%s" % (category_list,
+                                                      display_name,
+                                                      key)
+                    context.update({'category_list': category_list})
+        except Exception, e:
+            context.update({'error': "An unexpected error occurred while loading the query: {}.".format(e.message)})
 
         context.update({'refinement_form': RefinementForm(data=data_form)})
         # get all categories which must be selected in the table
@@ -105,16 +119,10 @@ class KeywordSearchRegistryView(KeywordSearchView):
         if refinement_form.is_valid() and error is None and query_id is not None:
             try:
                 query = query_api.get_by_id(query_id)
-
-                # Set visibility
-                set_visibility_to_query(query)
-
                 content = json.loads(query.content)
-
+                refinements = []
                 # Update content with status
                 update_content_not_deleted_status_criteria(content)
-                refinements = []
-
                 # get selected refinements (categories)
                 for refinement_name, selected_categories in refinement_form.cleaned_data.iteritems():
                     if len(selected_categories) > 0:
