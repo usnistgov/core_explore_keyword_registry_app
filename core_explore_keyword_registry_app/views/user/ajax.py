@@ -5,13 +5,11 @@ from collections import deque
 from itertools import groupby
 from logging import getLogger
 
-import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
 from bson.json_util import dumps, loads
 from core_explore_common_app.components.query import api as query_api
 from core_explore_common_app.constants import LOCAL_QUERY_NAME
 from core_main_app.components.data import api as data_api
 from core_main_app.rest.data.views import ExecuteLocalQueryView
-from core_main_app.utils.query.constants import VISIBILITY_OPTION, VISIBILITY_PUBLIC
 from core_main_registry_app.components.category import api as category_api
 from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import api as template_registry_api
@@ -23,8 +21,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.generic import View
 
 from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchView
-from core_explore_keyword_registry_app.views.user.views import set_visibility_to_query,\
-    update_content_not_deleted_status_criteria
+from core_explore_keyword_registry_app.views.user.views import update_content_not_deleted_status_criteria
 
 logger = getLogger(__name__)
 
@@ -50,7 +47,7 @@ class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
                                                                                       template_ids)
 
         # Set visibility option for local data source
-        set_visibility_to_query(query)
+        query_api.set_visibility_to_query(query)
 
         content = json.loads(query.content)
 

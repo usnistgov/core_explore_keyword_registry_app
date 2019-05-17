@@ -5,27 +5,9 @@ import json
 import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
 from core_explore_common_app.commons.exceptions import ExploreRequestError
 from core_explore_common_app.components.query import api as query_api
-from core_explore_common_app.constants import LOCAL_QUERY_NAME
 from core_explore_keyword_app.views.user.views import KeywordSearchView
 from core_explore_keyword_registry_app.views.user.forms import RefinementForm
 from core_main_app.commons.exceptions import DoesNotExist
-from core_main_app.utils.query.constants import VISIBILITY_OPTION, VISIBILITY_PUBLIC
-
-
-def set_visibility_to_query(query):
-    """ Set visibility to public.
-
-    Args:
-        query:
-    Returns:
-    """
-    # Set visibility option for local data source
-    for data_source in query.data_sources:
-        # find local data source
-        if data_source.name == LOCAL_QUERY_NAME:
-            # set visibility to public
-            data_source.query_options = {VISIBILITY_OPTION: VISIBILITY_PUBLIC}
-            break
 
 
 def update_content_not_deleted_status_criteria(content):
@@ -67,7 +49,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
             query = query_api.get_by_id(query_id)
             # here we have to make sure to set the visibility and status criteria
             # set visibility
-            set_visibility_to_query(query)
+            query_api.set_visibility_to_query(query)
             # load content
             content = json.loads(query.content)
             # update content with status
