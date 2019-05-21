@@ -1,5 +1,6 @@
 """ Discover rules for core explore keyword registry app
 """
+from __future__ import print_function
 from core_explore_keyword_app.permissions import rights as explore_keyword_rights
 from core_main_app.permissions import rights as main_rights
 
@@ -22,6 +23,6 @@ def init_permissions(apps):
 
         # add permissions to anonymous group
         anonymous_group.permissions.add(explore_access_perm)
-    except Exception, e:
+    except Exception as e:
         print('ERROR : Impossible to init the permissions for core_explore_keyword_registry_app : '
               '' + e.message)

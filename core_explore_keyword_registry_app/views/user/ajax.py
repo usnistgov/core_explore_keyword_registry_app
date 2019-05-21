@@ -85,7 +85,7 @@ class RefinementCountView(View):
             self.query = query_api.get_by_id(query_id)
             # Build the count
             self.build_count()
-        except Exception, e:
+        except Exception as e:
             return HttpResponseBadRequest("Something wrong happened.")
 
         return HttpResponse(json.dumps(self.results), 'application/javascript')

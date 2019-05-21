@@ -1,5 +1,6 @@
 """ discover for core explore keyword registry app
 """
+from __future__ import print_function
 from os.path import join
 
 from core_main_app.commons import exceptions
@@ -29,7 +30,7 @@ def init_xslt():
         detail_xslt = _get_or_create_xslt(DETAIL_XSL_FILENAME)
         # Create binding between template and XSLTs if does not exist
         _bind_template_xslt(template_version_manager.current, list_xslt, detail_xslt)
-    except Exception, e:
+    except Exception as e:
         print('ERROR : Impossible to init the XSLTs. ' + e.message)
 
 
@@ -42,7 +43,7 @@ def _get_registry_template():
     """
     try:
         return version_manager_api.get_active_global_version_manager_by_title(REGISTRY_XSD_FILENAME)
-    except Exception, e:
+    except Exception as e:
         raise Exception("Impossible to get the template {0} : {1} ".format(REGISTRY_XSD_FILENAME,
                                                                            e.message))
 
@@ -67,7 +68,7 @@ def _get_or_create_xslt(filename):
         # Create the XSLT.
         list_xslt = XslTransformation(name=filename, filename=filename, content=list_xsl_data)
         return xslt_transformation_api.upsert(list_xslt)
-    except Exception, e:
+    except Exception as e:
         raise Exception("Impossible to add the xslt {0} : {1} ".format(filename, e.message))
 
 
@@ -87,5 +88,5 @@ def _bind_template_xslt(template_id, list_xslt, detail_xslt):
     except exceptions.DoesNotExist:
         template_xsl_rendering_api.add_or_delete(template_id=template_id, list_xslt=list_xslt,
                                                  detail_xslt=detail_xslt)
-    except Exception, e:
+    except Exception as e:
         raise Exception('Impossible to bind the template with XSLTs : ' + e.message)

@@ -73,7 +73,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
                                                       display_name,
                                                       key)
                     context.update({'category_list': category_list})
-        except Exception, e:
+        except Exception as e:
             context.update({'error': "An unexpected error occurred while loading the query: {}.".format(e.message)})
 
         context.update({'refinement_form': RefinementForm(data=data_form)})
@@ -126,7 +126,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
             except DoesNotExist:
                 error = "An unexpected error occurred while retrieving the query."
                 context.update({'error': error})
-            except Exception, e:
+            except Exception as e:
                 error = "An unexpected error occurred: {}.".format(e.message)
                 context.update({'error': error})
 
