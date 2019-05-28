@@ -86,7 +86,7 @@ class RefinementCountView(View):
             # Build the count
             self.build_count()
         except Exception as e:
-            return HttpResponseBadRequest("Something wrong happened.")
+            return HttpResponseBadRequest("Something wrong happened: %s" % str(e))
 
         return HttpResponse(json.dumps(self.results), 'application/javascript')
 
@@ -114,6 +114,7 @@ class RefinementCountView(View):
                 # find local data source
                 if data_source.name == LOCAL_QUERY_NAME:
                     self._get_local_data(data_source, data_sources_res)
+
                 # OAI-PMH
                 elif data_source.url_query.endswith(reverse(
                         "core_explore_oaipmh_rest_execute_query")):
@@ -128,7 +129,7 @@ class RefinementCountView(View):
             res_map = defaultdict(list)
             # Formatting results
             for elt in data_sources_res:
-                res_map[elt.get(self.id_key)].extend(elt.get(self.ids_key))
+                res_map[str(elt.get(self.id_key))].extend(elt.get(self.ids_key))
 
             self._build_results(categories, res_map)
 
@@ -180,13 +181,13 @@ class RefinementCountView(View):
                       '"preserveNullAndEmptyArrays": true }} }}'.format(self.data_field,
                                                                         ancestor_refinement_path,
                                                                         refinement_path)
-        # Group by category.
-        self.group = '{{"$group": {{"{2}": {{"$let": {{"vars":{{ {0} }},"in": {1} }}}}' \
-                     ',"{4}": {{"$sum": 1}}' \
-                     ',"{3}": {{"$push": "${2}"}}' \
-                     '}}}}'.format(self._add_categories_name(categories),
+        self.project = '{{"$project": {{"__id": "${2}", "{2}": {{"$let": {{"vars":{{ {0} }},"in": {1}' \
+                       ' }}}}}}}}'.format(self._add_categories_name(categories),
                                    self._add_category(deque(categories)),
-                                   self.id_key, self.ids_key, self.count_key)
+                                   self.id_key)
+
+        # Group by category.
+        self.group = '{"$group": {"_id": "$_id", "ids": {"$push": "$__id"},"count": { "$sum": 1 }}}'
 
     def _get_local_data(self, data_source, res):
         """ Get local data based on the aggregation.
@@ -257,7 +258,7 @@ class RefinementCountView(View):
 
         """
         self.match = '{{ "$match":  {0} }}'.format(dumps(formatted_query))
-        local_pipeline = '[{0}, {1}, {2}]'.format(self.match, self.unwind, self.group)
+        local_pipeline = '[{0}, {1}, {2}, {3}]'.format(self.match, self.unwind, self.project, self.group)
         return local_pipeline
 
     def _add_categories_name(self, categories):
@@ -287,8 +288,8 @@ class RefinementCountView(View):
         return ','.join(elt)
 
     def _add_category(self, categories):
-        """ Add category query. Recursive calls.
-        Each category will create a group.
+        """ Add category query. Put all the categories in a switch case.
+        Each category will create a switch case which match to its ID
 
         Args:
             categories:
@@ -296,20 +297,25 @@ class RefinementCountView(View):
         Returns:
 
         """
-        # Add unknown case.
-        if len(categories) == 0:
-            return '"{0}"'.format(self.unknown_value)
+        switch_head = '{"$switch": {"branches": ['
+        switch_cases = []
+        end_switch = '], "default": "{0}"}}}}'.format(self.unknown_value)
 
-        # Remove the category.
-        category = categories.popleft()
-        # Get path
-        path = "$${0}".format(re.sub('[^A-Za-z0-9]+', '', category.path)).lower()
-        path_text = "$${0}text".format(re.sub('[^A-Za-z0-9]+', '', category.path)).lower()
-        # Get value and group name (category id used here)
-        value = category.value
-        group_name = category.id
+        while len(categories) > 0:
+            # Remove the category.
+            category = categories.popleft()
+            # Get path
+            path = "$${0}".format(re.sub('[^A-Za-z0-9]+', '', category.path)).lower()
+            path_text = "$${0}text".format(re.sub('[^A-Za-z0-9]+', '', category.path)).lower()
+            # Get value and group name (category id used here)
+            value = category.value
+            group_name = category.id
 
-        # Recursive calls to treat all categories.
-        return '{{"$cond": [ {{"$or": [ {{"$eq": ["{0}","{1}"]}}, {{"$eq": ["{2}","{3}"]}} ] }}, ' \
-               '"{4}",{5}]}}'.format(path, value, path_text, value, group_name,
-                                     self._add_category(categories))
+            switch_cases.append('{{ "case": {{"$or": [ {{"$eq": ["{0}","{1}"]}}, {{"$eq": ["{2}","{3}"]}} ] }}, ' \
+                                 '"then": {4} }}'.format(path, value, path_text, value, group_name))
+
+        # Join the switch cases
+        cases = ",".join(switch_cases)
+
+        # Handle the default case in the switch
+        return switch_head + cases + end_switch
