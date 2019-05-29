@@ -74,7 +74,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
                                                       key)
                     context.update({'category_list': category_list})
         except Exception as e:
-            context.update({'error': "An unexpected error occurred while loading the query: {}.".format(e.message)})
+            context.update({'error': "An unexpected error occurred while loading the query: {}.".format(str(e))})
 
         context.update({'refinement_form': RefinementForm(data=data_form)})
         # get all categories which must be selected in the table
@@ -106,7 +106,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 # Update content with status
                 update_content_not_deleted_status_criteria(content)
                 # get selected refinements (categories)
-                for refinement_name, selected_categories in refinement_form.cleaned_data.iteritems():
+                for refinement_name, selected_categories in list(refinement_form.cleaned_data.items()):
                     if len(selected_categories) > 0:
                         # Add categories ids
                         refinements.append([x.id for x in selected_categories])
@@ -116,7 +116,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
                     # get refinement query
                     refinement_query = mongo_query_api.build_refinements_query(refinements)
                     # if we have a refinement query
-                    if len(refinement_query.keys()) > 0:
+                    if len(list(refinement_query.keys())) > 0:
                         content.update(refinement_query)
 
                 # Update content
@@ -127,7 +127,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 error = "An unexpected error occurred while retrieving the query."
                 context.update({'error': error})
             except Exception as e:
-                error = "An unexpected error occurred: {}.".format(e.message)
+                error = "An unexpected error occurred: {}.".format(str(e))
                 context.update({'error': error})
 
         context.update({'refinement_form': refinement_form})

@@ -1,13 +1,20 @@
 import json
 import re
+from builtins import str
 from collections import defaultdict
 from collections import deque
 from itertools import groupby
 from logging import getLogger
 
 from bson.json_util import dumps, loads
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.views.generic import View
+
 from core_explore_common_app.components.query import api as query_api
 from core_explore_common_app.constants import LOCAL_QUERY_NAME
+from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchView
+from core_explore_keyword_registry_app.views.user.views import update_content_not_deleted_status_criteria
 from core_main_app.components.data import api as data_api
 from core_main_app.rest.data.views import ExecuteLocalQueryView
 from core_main_registry_app.components.category import api as category_api
@@ -16,12 +23,6 @@ from core_main_registry_app.components.template import api as template_registry_
 from core_main_registry_app.utils.refinement.tools.tree import TreeInfo
 from core_oaipmh_harvester_app.components.oai_record import api as oai_record_api
 from core_oaipmh_harvester_app.rest.oai_record.views import ExecuteQueryView as OaiExecuteQueryView
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.views.generic import View
-
-from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchView
-from core_explore_keyword_registry_app.views.user.views import update_content_not_deleted_status_criteria
 
 logger = getLogger(__name__)
 
