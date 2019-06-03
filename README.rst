@@ -9,8 +9,7 @@ Quickstart
 
 1. Add "core_explore_keyword_app", "core_explore_keyword_registry_app" and "core_explore_common_app" to your INSTALLED_APPS setting
 -----------------------------------------------------------------------------------------------------------------------------------
-    /!\ Order matters. Overriding of templates in core_explore_keyword_registry_app.
-------------------------------------------------------------------------------------
+Order matters. Overriding of templates in core_explore_keyword_registry_app.
 
 .. code:: python
 
