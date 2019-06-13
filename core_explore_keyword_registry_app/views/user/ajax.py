@@ -1,6 +1,5 @@
 import json
 import re
-from builtins import str
 from collections import defaultdict
 from collections import deque
 from itertools import groupby
