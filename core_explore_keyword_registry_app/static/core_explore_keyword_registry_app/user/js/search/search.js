@@ -1,10 +1,14 @@
-$(document).ready(function() {
-    $(".description").shorten({
-        showChars: 350,
-        ellipsesText: "",
-        moreText: "... show more",
-        lessText: " show less",
+shortenDescription = function() {
+    $.each($(".description"), function(index, item) {
+       $(item).shorten({
+           showChars: 350,
+            moreText: " Show more",
+            lessText: " Show less"
+       });
     });
+};
 
+$(document).ready(function() {
+    shortenDescription();
     getRefinementsCount();
 });
