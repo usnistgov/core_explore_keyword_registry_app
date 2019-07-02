@@ -1,3 +1,4 @@
+{%load get_attribute%}
 <div class="container">
 {% if data.error %}
     <div class="alert alert-danger"><i class="fa fa-times-circle"></i>
@@ -28,7 +29,7 @@
                             {% include "core_explore_common_app/user/persistent_query/button_persistent_query.html" with url=data.get_shareable_link_url %}
                         </li>
                     {% endif %}
-                    {% if data.exporter_app %}
+                    {% if data|get_attribute:'exporter_app' %}
                         <li>
                             {% include "core_exporters_app/user/exporters/list/link_exporters_selector.html" %}
                         </li>
@@ -45,7 +46,7 @@
                     </text>
                     <div id="results_infos"></div>
                     <input id="category-filters" />
-                    <div class="category-list" style="display: none;">{{data.category_list}}</div>
+                    <div class="category-list" style="display: none;">{{data|get_attribute:'category_list'}}</div>
                 </div>
             </div>
             <div class="col-sm-3 search-left-panel">
