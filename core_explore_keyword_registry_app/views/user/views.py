@@ -8,6 +8,7 @@ from core_explore_common_app.components.query import api as query_api
 from core_explore_keyword_app.views.user.views import KeywordSearchView
 from core_explore_keyword_registry_app.views.user.forms import RefinementForm
 from core_main_app.commons.exceptions import DoesNotExist
+from core_main_registry_app.components.custom_resource import api as custom_resource_api
 
 
 def update_content_not_deleted_status_criteria(content):
@@ -79,6 +80,9 @@ class KeywordSearchRegistryView(KeywordSearchView):
         context.update({'refinement_form': RefinementForm(data=data_form)})
         # get all categories which must be selected in the table
         context.update({'refinement_selected_types': refinement_selected_types})
+
+        # Custom registry
+        self._update_context_with_custom_resources(context)
         return context
 
     def _post(self, request):
@@ -147,7 +151,31 @@ class KeywordSearchRegistryView(KeywordSearchView):
                                                   key)
             context.update({'category_list': category_list})
 
+        # Custom registry
+        self._update_context_with_custom_resources(context)
         return context
+
+    def _update_context_with_custom_resources(self, context):
+        """ Update the context with custom resources.
+
+        Args:
+            context:
+        Returns:
+        """
+        # TODO: use custom_resource to get cr_type_all
+        cr_type_all = custom_resource_api.get_current_custom_resource_type_all()
+        custom_resources = list(
+            custom_resource_api.get_all_of_current_template())  # TODO .sort(key=lambda x: x.sort)
+        dict = {}
+        for cr in custom_resources:
+            if custom_resource_api._is_custom_resource_type_resource(cr) and cr.display_icon:
+                dict[cr.role_type.split(':')[0]] = cr.url
+        context.update({
+            'custom_resources': custom_resources,
+            'display_not_resource': True,  # display all resource
+            'role_custom_resource_type_all': cr_type_all.url,
+            'dict_category_role': json.dumps(dict)
+        })
 
     def _load_assets(self):
         """ Update assets structure relative to the registry
