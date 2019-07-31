@@ -169,11 +169,11 @@ class KeywordSearchRegistryView(KeywordSearchView):
         dict = {}
         for cr in custom_resources:
             if custom_resource_api._is_custom_resource_type_resource(cr) and cr.display_icon:
-                dict[cr.role_type.split(':')[0]] = cr.url
+                dict[cr.role_type.split(':')[0]] = cr.slug
         context.update({
             'custom_resources': custom_resources,
             'display_not_resource': True,  # display all resource
-            'role_custom_resource_type_all': cr_type_all.url,
+            'role_custom_resource_type_all': cr_type_all.slug,
             'dict_category_role': json.dumps(dict)
         })
 
