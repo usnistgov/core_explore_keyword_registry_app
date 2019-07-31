@@ -100,6 +100,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         # get query_id and error from the context
         error = context.get("error", None)
         query_id = context.get("query_id", None)
+        refinement_selected_types = []
 
         # validate form, test if no errors occurred in the parent treatment and query_id exists
         if refinement_form.is_valid() and error is None and query_id is not None:
@@ -141,7 +142,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
             selected_types = refinement_form.cleaned_data.get('type', None)
             # create the list of type
             if selected_types:
-                context.update({'refinement_selected_types': get_all_parent_name_from_category_list(selected_types)})
+                refinement_selected_types = get_all_parent_name_from_category_list(selected_types)
             # create the list of category
             category_list = ""
             for key in refinement_form.cleaned_data:
@@ -151,6 +152,8 @@ class KeywordSearchRegistryView(KeywordSearchView):
                                                   key)
             context.update({'category_list': category_list})
 
+        # get all categories which must be selected in the table
+        context.update({'refinement_selected_types': refinement_selected_types})
         # Custom registry
         self._update_context_with_custom_resources(context)
         return context
