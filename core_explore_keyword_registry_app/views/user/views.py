@@ -169,15 +169,18 @@ class KeywordSearchRegistryView(KeywordSearchView):
         cr_type_all = custom_resource_api.get_current_custom_resource_type_all()
         custom_resources = list(
             custom_resource_api.get_all_of_current_template())  # TODO .sort(key=lambda x: x.sort)
-        dict = {}
+        dict_category_role = {}
+        dict_refinements = {}
         for cr in custom_resources:
             if custom_resource_api._is_custom_resource_type_resource(cr) and cr.display_icon:
-                dict[cr.role_type.split(':')[0]] = cr.slug
+                dict_category_role[cr.role_type.split(':')[0]] = cr.slug
+            dict_refinements[cr.slug] = cr.refinements if len(cr.refinements) > 0 else []
         context.update({
             'custom_resources': custom_resources,
             'display_not_resource': True,  # display all resource
             'role_custom_resource_type_all': cr_type_all.slug,
-            'dict_category_role': json.dumps(dict)
+            'dict_category_role': json.dumps(dict_category_role),
+            'dict_refinements': json.dumps(dict_refinements)
         })
 
     def _load_assets(self):

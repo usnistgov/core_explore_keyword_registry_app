@@ -166,47 +166,79 @@ var fancyTreeSelectHandler = function(event, data){
  */
 var selectTreeNodeByRole = function(role, root) {
 
-    var node_title = "";
-    var unspecified_node_title = "";
-    for(var key in dict_category_role) {
-        var value = dict_category_role[key];
-        if (role == value) {
-            unspecified_node_title = "unspecified " + key;
-            node_title = key;
-            break;
-        }
-    }
-
-    var found = false;
-    root.visit(function(node){
-        if (node.title.includes(unspecified_node_title)) {
-            found = true;
-            if (isRoleInIconTableIsSelected(role)) {
-                if (areAllSelectedInTypeTree()){
-                    // unselected all except the targeted node
-                    root.visit(function(root_node){
-                        if (root_node.key != node.key)
-                            root_node.setSelected(false);
-                        else
-                            root_node.setSelected(true);
-                    });
-                } else {
-                    node.setSelected(true);
+    // if we have refinements defined for custom resource
+    var list_refinements = dict_refinements[role];
+    if (list_refinements.length > 0) {
+        root.visit(function (node) {
+            for (var i=0; i<list_refinements.length; i++) {
+                var refinements = list_refinements[i];
+                var title = node.title.split(" <em")[0];
+                if (title.startsWith(" ")) { // the sub category starts with a space
+                    title = title.substring(1);
                 }
-            } else {
-                parent_node = getFirstParendNode(node);
-                parent_node.visit(function(node){
-                    node.setSelected(false);
-                });
+                if (title == refinements) {
+                   if (isRoleInIconTableIsSelected(role)) {
+                        node.setSelected(true);
+                    } else{
+                        parent_node = getFirstParendNode(node);
+                        parent_node.visit(function (node) {
+                            node.setSelected(false);
+                        });
+                    }
+                }
+            }
+        });
+    } else { // otherwise, try to select the unspecified or parent
+
+        var node_title = "";
+        var unspecified_node_title = "";
+        for (var key in dict_category_role) {
+            var value = dict_category_role[key];
+            if (role == value) {
+                unspecified_node_title = "unspecified " + key;
+                node_title = key;
+                break;
             }
         }
-    });
-    if (!found) {
-           root.visit(function(node) {
-               if (node.title.includes(node_title)) {
-                   node.setSelected(true);
-               }
-           });
+
+        var found = false;
+        root.visit(function (node) {
+            if (node.title.includes(unspecified_node_title)) {
+                found = true;
+                if (isRoleInIconTableIsSelected(role)) {
+                    if (areAllSelectedInTypeTree()) {
+                        // unselected all except the targeted node
+                        root.visit(function (root_node) {
+                            if (root_node.key != node.key)
+                                root_node.setSelected(false);
+                            else
+                                root_node.setSelected(true);
+                        });
+                    } else {
+                        node.setSelected(true);
+                    }
+                } else {
+                    parent_node = getFirstParendNode(node);
+                    parent_node.visit(function (node) {
+                        node.setSelected(false);
+                    });
+                }
+            }
+        });
+        if (!found) {
+            root.visit(function (node) {
+                if (node.title.includes(node_title)) {
+                    if (isRoleInIconTableIsSelected(role)) {
+                        node.setSelected(true);
+                    } else{
+                        parent_node = getFirstParendNode(node);
+                        parent_node.visit(function (node) {
+                            node.setSelected(false);
+                        });
+                    }
+                }
+            });
+        }
     }
 };
 
