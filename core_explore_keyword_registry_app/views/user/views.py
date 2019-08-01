@@ -212,7 +212,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         ])
 
         assets['css'].extend(["core_explore_keyword_registry_app/user/css/fancytree/fancytree.custom.css",
-                              "core_explore_keyword_registry_app/user/css/search/resource_type_icons_table.css",
+                              "core_main_registry_app/user/css/resource_banner/selection.css",
                               "core_explore_keyword_registry_app/user/css/search/filters.css"])
 
         return assets
