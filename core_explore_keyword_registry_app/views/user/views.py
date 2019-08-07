@@ -168,7 +168,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         # TODO: use custom_resource to get cr_type_all
         cr_type_all = custom_resource_api.get_current_custom_resource_type_all()
         custom_resources = list(
-            custom_resource_api.get_all_of_current_template())  # TODO .sort(key=lambda x: x.sort)
+            custom_resource_api.get_all_of_current_template().order_by('sort'))
         dict_category_role = {}
         dict_refinements = {}
         for cr in custom_resources:
