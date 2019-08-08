@@ -14,9 +14,8 @@ var selectIcon = function(event) {
  * Select the role given
  */
 var selectRole = function(role) {
-    var td_id = "#td_" + role;
     // select the role in the icon's table
-    selectRoleInIconTable(role, td_id);
+    selectRoleInIconTable(role);
     // select the role in the tree
     selectRoleInTree(role);
 };
@@ -24,27 +23,18 @@ var selectRole = function(role) {
 /**
  * Select in the icon's table the role given
  */
-var selectRoleInIconTable = function(role, td_id) {
-    if (role == role_custom_resource_type_all) {
-        // if 'all' is selected
-        if ($(td_id).hasClass("selected_resource")) {
-            // unselect
-            $(td_id).removeClass("selected_resource");
-        } else {
-            // if 'all' is not selected
-            clearTable();
-            // select all
-            $(td_id).addClass("selected_resource");
-        }
+var selectRoleInIconTable = function(role) {
+
+    if ($("#td_" + role).hasClass("selected_resource")) {
+        $("#td_" + role).removeClass("selected_resource");
     } else {
-        // unselect 'all'
-        $("#td_" + role_custom_resource_type_all).removeClass("selected_resource");
-        if ($(td_id).hasClass("selected_resource")){
-            // unselect if already selected
-            $(td_id).removeClass("selected_resource");
-        } else {
-            // select
-            $(td_id).addClass("selected_resource");
+        $("#td_" + role).addClass("selected_resource");
+        if (role != role_custom_resource_type_all) {
+             $("#td_"+ role_custom_resource_type_all).removeClass('selected_resource')
+        }
+        if (role == role_custom_resource_type_all || (areAllSelectedInTableExceptAll() && areAllSelectedInTypeTree())) {
+            clearTable();
+            $("#td_"+ role_custom_resource_type_all).addClass('selected_resource');
         }
     }
 };
@@ -63,7 +53,7 @@ var isRoleInIconTableIsSelected = function(role) {
 var selectRoleInTree = function(role, td_id) {
     var tree = getTypeTree();
     var root =  tree.fancytree('getTree');
-    if (role == role_custom_resource_type_all){
+    if (role == role_custom_resource_type_all || isIconAllSelectedInTable()) {
         // select all checkbox of the type section
         selectAllCheckboxes(tree, root);
     }
@@ -80,9 +70,23 @@ var selectRoleInTree = function(role, td_id) {
  */
 var selectAllCheckboxes = function(tree, root) {
     var selected = areAllSelectedInTypeTree(tree);
+    setSelectedAllCheckboxes(root, !selected);
+};
+
+/**
+ * unselect all checkboxes
+ */
+var unselectAllCheckboxes = function(root) {
+    setSelectedAllCheckboxes(root, false);
+};
+
+/**
+ * set setSelected all checkboxes
+ */
+var setSelectedAllCheckboxes = function(root, selected) {
     if (root.length !== 0) {
         root.visit(function(node){
-            node.setSelected(!selected);
+            node.setSelected(selected);
         });
     }
 };
@@ -95,6 +99,13 @@ var areAllSelectedInTypeTree = function() {
     var allCount = tree.fancytree('getRootNode').tree.count();
     var selectedNodes = tree.fancytree('getRootNode').tree.getSelectedNodes();
     return selectedNodes.length == allCount;
+};
+
+/**
+ * Check if the icon all resource is selected
+ */
+var isIconAllSelectedInTable = function() {
+    return $("#td_" + role_custom_resource_type_all).hasClass("selected_resource");
 };
 
 /**
@@ -156,6 +167,8 @@ var fancyTreeSelectHandler = function(event, data){
                 clearTable();
                 // select all
                 $("#td_" + role_custom_resource_type_all).addClass("selected_resource");
+            } else if(!areAllSelectedInTypeTree()) {
+                $("#td_" + role_custom_resource_type_all).removeClass("selected_resource");
             }
         }
     }
@@ -170,16 +183,21 @@ var selectTreeNodeByRole = function(role, root) {
     var list_refinements = dict_refinements[role];
     if (list_refinements.length > 0) {
         root.visit(function (node) {
-            for (var i=0; i<list_refinements.length; i++) {
+            for (var i = 0; i < list_refinements.length; i++) {
                 var refinements = list_refinements[i];
                 var title = node.title.split(" <em")[0];
                 if (title.startsWith(" ")) { // the sub category starts with a space
                     title = title.substring(1);
                 }
                 if (title == refinements) {
-                   if (isRoleInIconTableIsSelected(role)) {
+                    if (areAllSelectedInTypeTree()) {
+                        unselectAllCheckboxes(root);
+                        $("#td_" + role).addClass("selected_resource");
+                    }
+
+                    if (isRoleInIconTableIsSelected(role)) {
                         node.setSelected(true);
-                    } else{
+                    } else {
                         parent_node = getFirstParendNode(node);
                         parent_node.visit(function (node) {
                             node.setSelected(false);
@@ -188,57 +206,34 @@ var selectTreeNodeByRole = function(role, root) {
                 }
             }
         });
-    } else { // otherwise, try to select the unspecified or parent
+    } else { // otherwise, select parent
 
         var node_title = "";
-        var unspecified_node_title = "";
         for (var key in dict_category_role) {
             var value = dict_category_role[key];
             if (role == value) {
-                unspecified_node_title = "unspecified " + key;
                 node_title = key;
                 break;
             }
         }
-
-        var found = false;
         root.visit(function (node) {
-            if (node.title.includes(unspecified_node_title)) {
-                found = true;
-                if (isRoleInIconTableIsSelected(role)) {
-                    if (areAllSelectedInTypeTree()) {
-                        // unselected all except the targeted node
-                        root.visit(function (root_node) {
-                            if (root_node.key != node.key)
-                                root_node.setSelected(false);
-                            else
-                                root_node.setSelected(true);
-                        });
-                    } else {
-                        node.setSelected(true);
-                    }
+            if (node.title.includes(node_title)) {
+
+                if (areAllSelectedInTypeTree()) {
+                    unselectAllCheckboxes(root);
+                    $("#td_" + role).addClass("selected_resource");
+                }
+
+                var parent_node = getFirstParendNode(node);
+                if (parent_node == node) {
+                    node.setSelected(isRoleInIconTableIsSelected(role));
                 } else {
-                    parent_node = getFirstParendNode(node);
                     parent_node.visit(function (node) {
-                        node.setSelected(false);
+                        node.setSelected(isRoleInIconTableIsSelected(role));
                     });
                 }
             }
         });
-        if (!found) {
-            root.visit(function (node) {
-                if (node.title.includes(node_title)) {
-                    if (isRoleInIconTableIsSelected(role)) {
-                        node.setSelected(true);
-                    } else{
-                        parent_node = getFirstParendNode(node);
-                        parent_node.visit(function (node) {
-                            node.setSelected(false);
-                        });
-                    }
-                }
-            });
-        }
     }
 };
 
@@ -287,14 +282,10 @@ var fancyTreeReadyHandler = function(event, data) {
 
 // .ready() called.
 $(function() {
-    // bind all click event to table's buttons
-    var tds = document.querySelectorAll("#icons_table td");
-    for (var i=0; i<tds.length; i++) {
-        tds[i].onclick = function () {
-            var id = this.id.replace('td_', '');
-            selectRole(id);
-        }
-    }
+
+    $("#icons_table td").each(function(){
+        $(this).on("click", { role: this.id.replace('td_', '') }, selectIcon);
+    }) ;
 
     // bind event to clearTree calls
     $(document).on("clearTypeTree", function(event, div_tree){
@@ -319,5 +310,4 @@ $(function() {
             }
         }
     }
-
 });
