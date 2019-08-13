@@ -21,7 +21,7 @@
 			<div>
 				<xsl:choose>
 					<xsl:when test="count(ancestor::node())=2" >
-						<h3 style="letter-spacing: -1px;font-weight: 500;font-size: 1.7em;color: #699BBA;">
+						<h3 style="letter-spacing: -1px;font-weight: 500;font-size: 1.7em;color: #699BBA; margin: 0.5em 0 0 0">
 							<xsl:call-template name="formatText">
 								<xsl:with-param name="current" select="$branchName" />
 							</xsl:call-template>
