@@ -129,7 +129,7 @@ var areAllSelectedInTableExceptAll = function() {
  * Get the type section tree
  */
 var getTypeTree = function() {
-    return $("#id_refinement-type");
+    return $("[id^=id_refinement-type]");
 };
 
 /**

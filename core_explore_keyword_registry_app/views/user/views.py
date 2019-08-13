@@ -9,6 +9,8 @@ from core_explore_keyword_app.views.user.views import KeywordSearchView
 from core_explore_keyword_registry_app.views.user.forms import RefinementForm
 from core_main_app.commons.exceptions import DoesNotExist
 from core_main_registry_app.components.custom_resource import api as custom_resource_api
+from core_main_registry_app.components.refinement import api as refinement_api
+from core_main_registry_app.components.template import api as template_registry_api
 
 
 def update_content_not_deleted_status_criteria(content):
@@ -139,7 +141,12 @@ class KeywordSearchRegistryView(KeywordSearchView):
 
         # get all categories which must be selected in the table
         if refinement_form.cleaned_data:
-            selected_types = refinement_form.cleaned_data.get('type', None)
+            # get the current template
+            template = template_registry_api.get_current_registry_template()
+            # get the refinement 'Type'
+            refinement = refinement_api.get_by_template_hash_and_by_slug(template.hash, 'type')
+            # get the selected_types
+            selected_types = refinement_form.cleaned_data.get(refinement.slug, None)
             # create the list of type
             if selected_types:
                 refinement_selected_types = get_all_parent_name_from_category_list(selected_types)
