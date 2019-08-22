@@ -25,16 +25,16 @@ var selectRole = function(role) {
  */
 var selectRoleInIconTable = function(role) {
 
-    if ($("#td_" + role).hasClass("selected_resource")) {
-        $("#td_" + role).removeClass("selected_resource");
+    if ($("#cnt_" + role).hasClass("selected_resource")) {
+        $("#cnt_" + role).removeClass("selected_resource");
     } else {
-        $("#td_" + role).addClass("selected_resource");
+        $("#cnt_" + role).addClass("selected_resource");
         if (role != role_custom_resource_type_all) {
-             $("#td_"+ role_custom_resource_type_all).removeClass('selected_resource')
+             $("#cnt_"+ role_custom_resource_type_all).removeClass('selected_resource')
         }
         if (role == role_custom_resource_type_all || (areAllSelectedInTableExceptAll() && areAllSelectedInTypeTree())) {
             clearTable();
-            $("#td_"+ role_custom_resource_type_all).addClass('selected_resource');
+            $("#cnt_"+ role_custom_resource_type_all).addClass('selected_resource');
         }
     }
 };
@@ -43,14 +43,14 @@ var selectRoleInIconTable = function(role) {
  * Is role selected in the Icon's table?
  */
 var isRoleInIconTableIsSelected = function(role) {
-    var td_id = "#td_" + role;
-    return $(td_id).hasClass("selected_resource");
+    var cnt_id = "#cnt_" + role;
+    return $(cnt_id).hasClass("selected_resource");
 };
 
 /**
  * Select in the tree the role given
  */
-var selectRoleInTree = function(role, td_id) {
+var selectRoleInTree = function(role, cnt_id) {
     var tree = getTypeTree();
     var root =  tree.fancytree('getTree');
     if (role == role_custom_resource_type_all || isIconAllSelectedInTable()) {
@@ -105,7 +105,7 @@ var areAllSelectedInTypeTree = function() {
  * Check if the icon all resource is selected
  */
 var isIconAllSelectedInTable = function() {
-    return $("#td_" + role_custom_resource_type_all).hasClass("selected_resource");
+    return $("#cnt_" + role_custom_resource_type_all).hasClass("selected_resource");
 };
 
 /**
@@ -113,8 +113,8 @@ var isIconAllSelectedInTable = function() {
  */
 var areAllSelectedInTableExceptAll = function() {
     var allSelected = true;
-    $("td[id^='td_']").each(function() {
-        if (this.id != 'td_' + role_custom_resource_type_all) {
+    $("div[id^='cnt_']").each(function() {
+        if (this.id != 'cnt_' + role_custom_resource_type_all) {
             if (!$(this).hasClass("selected_resource")) {
                 allSelected = false;
                 // break the loop
@@ -139,7 +139,7 @@ var fancyTreeSelectHandler = function(event, data){
     if (data.originalEvent){
         last_parent = getFirstParendNode(data.node);
         select_resource = false;
-        targeted_td = null;
+        targeted_div = null;
 
         // if the parent contains checked children
         if (last_parent.getSelectedNodes().length > 0
@@ -150,25 +150,25 @@ var fancyTreeSelectHandler = function(event, data){
         for(var key in dict_category_role) {
             var value = dict_category_role[key];
             if (last_parent.title.includes(key)) {
-                targeted_td = $("#td_" + value);
+                targeted_div = $("#cnt_" + value);
                 break;
             }
         }
 
-        if (targeted_td) {
+        if (targeted_div) {
             // add or remove the css class
             if (select_resource)
-                targeted_td.addClass("selected_resource");
+                targeted_div.addClass("selected_resource");
             else
-                targeted_td.removeClass("selected_resource");
+                targeted_div.removeClass("selected_resource");
 
             if (areAllSelectedInTableExceptAll() && areAllSelectedInTypeTree()){
                 // if 'all' is not selected
                 clearTable();
                 // select all
-                $("#td_" + role_custom_resource_type_all).addClass("selected_resource");
+                $("#cnt_" + role_custom_resource_type_all).addClass("selected_resource");
             } else if(!areAllSelectedInTypeTree()) {
-                $("#td_" + role_custom_resource_type_all).removeClass("selected_resource");
+                $("#cnt_" + role_custom_resource_type_all).removeClass("selected_resource");
             }
         }
     }
@@ -192,7 +192,7 @@ var selectTreeNodeByRole = function(role, root) {
                 if (title == refinements) {
                     if (areAllSelectedInTypeTree()) {
                         unselectAllCheckboxes(root);
-                        $("#td_" + role).addClass("selected_resource");
+                        $("#cnt_" + role).addClass("selected_resource");
                     }
 
                     if (isRoleInIconTableIsSelected(role)) {
@@ -221,7 +221,7 @@ var selectTreeNodeByRole = function(role, root) {
 
                 if (areAllSelectedInTypeTree()) {
                     unselectAllCheckboxes(root);
-                    $("#td_" + role).addClass("selected_resource");
+                    $("#cnt_" + role).addClass("selected_resource");
                 }
 
                 var parent_node = getFirstParendNode(node);
@@ -257,7 +257,7 @@ var getFirstParendNode = function(node) {
  */
 var clearTable = function() {
     // if 'all' is not selected
-    $("td[id^='td_']").each(function() {
+    $("div[id^='cnt_']").each(function() {
         // unselect all
         $(this).removeClass("selected_resource");
     });
@@ -273,7 +273,7 @@ var fancyTreeReadyHandler = function(event, data) {
         // if all Type are selected after a submit
         if (areAllSelectedInTypeTree(tree)) {
             clearTable();
-            $("#td_" + role_custom_resource_type_all).addClass("selected_resource");
+            $("#cnt_" + role_custom_resource_type_all).addClass("selected_resource");
         }
     }
     // We hide the table until the fancy tree is ready
@@ -283,8 +283,8 @@ var fancyTreeReadyHandler = function(event, data) {
 // .ready() called.
 $(function() {
 
-    $("#icons_table td").each(function(){
-        $(this).on("click", { role: this.id.replace('td_', '') }, selectIcon);
+    $("#icons_banner div").each(function(){
+        $(this).on("click", { role: this.id.replace('cnt_', '') }, selectIcon);
     }) ;
 
     // bind event to clearTree calls
@@ -306,7 +306,7 @@ $(function() {
         for(var key in dict_category_role) {
             var value = dict_category_role[key];
             if (refinement == key) {
-                $("#td_" +value).addClass("selected_resource");
+                $("#cnt_" +value).addClass("selected_resource");
             }
         }
     }
