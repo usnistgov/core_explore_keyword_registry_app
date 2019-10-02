@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-	xmlns:nr="http://schema.nist.gov/xml/res-md/1.0wd-02-2017">
+	xmlns:nr="http://schema.nist.gov/xml/res-md/1.0wd-02-2017"
+    xmlns:exsl="http://exslt.org/common"
+    exclude-result-prefixes="exsl">
 	<xsl:output method="html" indent="yes" encoding="UTF-8" />
 
 	<xsl:template match="/">
@@ -19,12 +21,24 @@
 				</xsl:choose>
 			<xsl:text disable-output-escaping="yes">&lt;/a&gt;</xsl:text>
 			<div class="black">
-				<xsl:variable name="creators" select="//nr:Resource/nr:providers/nr:creator" />
-				<xsl:variable name="publisher" select="//nr:Resource/nr:providers/nr:publisher"/>
+                <xsl:variable name="creatorList">
+                    <xsl:for-each select="//nr:Resource/nr:providers/nr:creator">
+                        <creator>
+                            <xsl:value-of select="./nr:name"/>
+                            <xsl:variable name="orga" select="./nr:affiliation" />
+                            <xsl:if test="$orga!=''">, <xsl:value-of select="$orga"/></xsl:if>
+                        </creator>
+                    </xsl:for-each>
+                </xsl:variable>
+
+                <xsl:variable name="creators" select="exsl:node-set($creatorList)/creator" />
+
 				<xsl:call-template name="join">
 					<xsl:with-param name="list" select="$creators" />
 					<xsl:with-param name="separator" select="', '" />
 				</xsl:call-template>
+
+				<xsl:variable name="publisher" select="//nr:Resource/nr:providers/nr:publisher"/>
 				<xsl:if test="( ($creators!='') and ($publisher!='') )">
 					<xsl:text> - </xsl:text>
 				</xsl:if>
