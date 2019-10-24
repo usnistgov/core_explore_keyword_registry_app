@@ -1,2 +1,2 @@
-Django==2.2.4
+Django==1.11.23
 django-simple-menu==1.2.1
