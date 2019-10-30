@@ -6,7 +6,7 @@ from itertools import groupby
 from logging import getLogger
 
 from bson.json_util import dumps, loads
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.generic import View
 
