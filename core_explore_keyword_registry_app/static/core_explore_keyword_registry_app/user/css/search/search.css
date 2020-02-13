@@ -59,3 +59,7 @@ div[name="result"] a[class="collapsed"] .fa-chevron-up {
 .tools-menu .btn {
     text-align: left;
 }
+
+.xml-representation-container {
+    display: inline-block;
+}
