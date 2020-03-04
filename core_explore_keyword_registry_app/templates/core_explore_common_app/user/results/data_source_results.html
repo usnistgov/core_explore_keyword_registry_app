@@ -6,17 +6,11 @@
 <script src="{% static 'core_explore_keyword_registry_app/user/js/search/search.js' %}"></script>
 
 <div class="result-toolbar">
-    <div class="filter">
-        <button id="result-button-filter{{data_source_index}}" class="result-toolbar-button" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="false">
-            <i class="fa fa-sort-amount-desc"></i> Sort
-        </button>
-        <ul class="dropdown-menu tools-menu filter-dropdown-menu" aria-labelledby="result-button-filter{{data_source_index}}">
-            {% for item in data_displayed_sorting_fields %}
-            <li class="sort_{{item.field}}"><i class="fa fa-random" aria-hidden="true"></i> {{item.display}}</li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% if sorting_display_type == 'single' %}
+        {% include "core_explore_common_app/user/ordering_menu/single_criteria_sorting_menu.html" %}
+    {% elif sorting_display_type == 'multi' %}
+        {% include "core_explore_common_app/user/ordering_menu/multi_criteria_sorting_menu.html" %}
+    {% endif %}
     <button class="result-toolbar-button">
         {% include "core_explore_common_app/user/persistent_query/button_persistent_query.html" with url=get_shareable_link_url %}
     </button>
