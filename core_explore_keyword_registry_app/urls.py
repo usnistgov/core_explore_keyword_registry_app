@@ -1,7 +1,7 @@
 """ Url router for the explore keyword registry application
 """
 
-from django.urls import re_path
+from django.urls import re_path, include
 
 from core_explore_keyword_app.views.user import views as user_views, ajax as user_ajax
 from core_explore_keyword_registry_app.views.user import ajax as registry_ajax
@@ -20,4 +20,5 @@ urlpatterns = [
             name='core_explore_keyword_get_persistent_query_url'),
     re_path(r'^results-redirect/(?P<persistent_query_id>\w+)', user_views.ResultQueryRedirectKeywordView.as_view(),
             name='core_explore_keyword_results_redirect'),
+    re_path(r'^rest/', include('core_explore_keyword_app.rest.urls')),
 ]
