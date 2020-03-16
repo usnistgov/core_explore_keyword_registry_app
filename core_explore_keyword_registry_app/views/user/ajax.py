@@ -19,6 +19,7 @@ from core_main_app.rest.data.views import ExecuteLocalQueryView
 from core_main_registry_app.components.category import api as category_api
 from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import api as template_registry_api
+from core_main_registry_app.constants import CATEGORY_SUFFIX
 from core_main_registry_app.utils.refinement.tools.tree import TreeInfo
 from core_oaipmh_harvester_app.components.oai_record import api as oai_record_api
 from core_oaipmh_harvester_app.rest.oai_record.views import ExecuteQueryView as OaiExecuteQueryView
@@ -150,7 +151,7 @@ class RefinementCountView(View):
         # Take care of the categories' group
         for category in categories:
             # If it's a group category
-            if category.value.endswith(TreeInfo.get_category_label()):
+            if category.value.endswith(CATEGORY_SUFFIX):
                 ids = set([])
                 # Get the all family
                 family = category.get_family()
