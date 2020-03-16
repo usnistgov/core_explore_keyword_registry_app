@@ -50,20 +50,16 @@
                 if ($this.hasClass('less')) {
                     $this.removeClass('less');
                     $this.html(config.moreText);
-                    $this.parent().prev().css("display", "none");
-                    config.onLess();
-//                    $this.parent().prev().hide(function() {
-//                        config.onLess();
-//                      });
+                    $this.parent().prev().animate({}, function () { $this.parent().prev().prev().show(); }).hide(0, function() {
+                        config.onLess();
+                      });
 
                 } else {
                     $this.addClass('less');
                     $this.html(config.lessText);
-                    $this.parent().prev().css("display", "inline");
-                    config.onMore();
-//                    $this.parent().prev().show(function() {
-//                        config.onMore();
-//                      });
+                    $this.parent().prev().animate({}, function () { $this.parent().prev().prev().hide(); }).show(0, function() {
+                        config.onMore();
+                      });
                 }
                 return false;
             }
@@ -76,7 +72,6 @@
             var contentlen = $this.text().length;
             if (contentlen > config.showChars + config.minHideChars) {
                 var c = content.substr(0, config.showChars);
-                var rest_text = ""
                 if (c.indexOf('<') >= 0) // If there's HTML don't want to cut it
                 {
                     var inTag = false; // I'm in a tag?
@@ -136,16 +131,14 @@
                             }
                         }
                     }
-                    rest_text = content.substr((c.length)+(bag.length));
                     c = $('<div/>').html(bag + '<span class="ellip">' + config.ellipsesText + '</span>').html();
                 }else{
-                    rest_text = content.substr(c.length);
                     c+=config.ellipsesText;
                 }
 
                 var html = '<div class="shortcontent">' + c +
-                    '</div><div class="allcontent">' + rest_text +
-                    '</div><span><a href="" class="morelink">' + config.moreText + '</a></span>';
+                    '</div><div class="allcontent">' + content +
+                    '</div><span><a href="javascript://nop/" class="morelink">' + config.moreText + '</a></span>';
 
                 $this.html(html);
                 $this.find(".allcontent").hide(); // Hide all text
