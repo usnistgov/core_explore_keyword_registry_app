@@ -20,7 +20,6 @@ from core_main_registry_app.components.category import api as category_api
 from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import api as template_registry_api
 from core_main_registry_app.constants import CATEGORY_SUFFIX
-from core_main_registry_app.utils.refinement.tools.tree import TreeInfo
 from core_oaipmh_harvester_app.components.oai_record import api as oai_record_api
 from core_oaipmh_harvester_app.rest.oai_record.views import ExecuteQueryView as OaiExecuteQueryView
 
@@ -173,15 +172,20 @@ class RefinementCountView(View):
         Returns:
 
         """
-        refinement_path = categories[0].path
         ancestor_refinement_path = '.'.join(categories[0].path.split('.')[:-1])
+        refinement_paths = []
+
         # Unwind the field.
         self.unwind = '{{ "$unwind" : {{ "path": "${0}.{1}", ' \
-                      '"preserveNullAndEmptyArrays": true }} }},' \
-                      '{{ "$unwind" : {{ "path": "${0}.{2}", ' \
                       '"preserveNullAndEmptyArrays": true }} }}'.format(self.data_field,
-                                                                        ancestor_refinement_path,
-                                                                        refinement_path)
+                                                                        ancestor_refinement_path)
+        for category in categories:
+            if category.path not in refinement_paths:
+                refinement_paths.append(category.path)
+                self.unwind += ','
+                self.unwind += '{{ "$unwind" : {{ "path": "${0}.{1}", ' \
+                               '"preserveNullAndEmptyArrays": true }} }}'.format(self.data_field,
+                                                                        category.path)
         self.project = '{{"$project": {{"__id": "${2}", "{2}": {{"$let": {{"vars":{{ {0} }},"in": {1}' \
                        ' }}}}}}}}'.format(self._add_categories_name(categories),
                                    self._add_category(deque(categories)),
