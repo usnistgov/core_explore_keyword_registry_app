@@ -61,14 +61,17 @@ class KeywordSearchRegistryView(KeywordSearchView):
             # save query
             query_api.upsert(query)
             # get all keywords back
-            refinement_selected_values = mongo_query_api.get_refinement_selected_values_from_query(content)
+            refinement_selected_values = \
+                mongo_query_api.get_refinement_selected_values_from_query(content)
             # build the data_form structure
             for key in refinement_selected_values:
                 for display_name in refinement_selected_values[key]:
                     list_element = refinement_selected_values[key][display_name]
-                    data_form.update({RefinementForm.prefix + '-' + key: [element["id"]
-                                                                          for element
-                                                                          in list_element]})
+                    data_form.update({
+                        RefinementForm.prefix + '-' + key: [
+                            element["id"] for element in list_element
+                        ]
+                    })
                     refinement_selected_types = [element["value"] for element in list_element]
                     # create the list of category
                     if len(refinement_selected_values[key]) > 0:
@@ -77,7 +80,10 @@ class KeywordSearchRegistryView(KeywordSearchView):
                                                       key)
                     context.update({'category_list': category_list})
         except Exception as e:
-            context.update({'error': "An unexpected error occurred while loading the query: {}.".format(str(e))})
+            context.update({
+                "error": "An unexpected error occurred while loading the query: %s." %
+                         str(e)
+            })
 
         context.update({'refinement_form': RefinementForm(data=data_form)})
         # get all categories which must be selected in the table
@@ -113,7 +119,9 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 # Update content with status
                 update_content_not_deleted_status_criteria(content)
                 # get selected refinements (categories)
-                for refinement_name, selected_categories in list(refinement_form.cleaned_data.items()):
+                for refinement_name, selected_categories in list(
+                        refinement_form.cleaned_data.items()
+                ):
                     if len(selected_categories) > 0:
                         # Add categories ids
                         refinements.append([x.id for x in selected_categories])
@@ -124,7 +132,10 @@ class KeywordSearchRegistryView(KeywordSearchView):
                     refinement_query = mongo_query_api.build_refinements_query(refinements)
                     # if we have a refinement query
                     if len(list(refinement_query.keys())) > 0:
-                        content.update(refinement_query)
+                        if "$and" in content.keys() and "$and" in refinement_query.keys():
+                            content["$and"] += refinement_query["$and"]
+                        else:
+                            content.update(refinement_query)
 
                 # Update content
                 query.content = json.dumps(content)
@@ -154,9 +165,11 @@ class KeywordSearchRegistryView(KeywordSearchView):
             category_list = ""
             for key in refinement_form.cleaned_data:
                 if len(refinement_form.cleaned_data[key]) > 0:
-                    category_list = "%s,%s|%s" % (category_list,
-                                                  refinement_form.cleaned_data[key][0].refinement.name,
-                                                  key)
+                    category_list = "%s,%s|%s" % (
+                        category_list,
+                        refinement_form.cleaned_data[key][0].refinement.name,
+                        key
+                    )
             context.update({'category_list': category_list})
 
         # get all categories which must be selected in the table
@@ -218,10 +231,12 @@ class KeywordSearchRegistryView(KeywordSearchView):
             },
         ])
 
-        assets['css'].extend(["core_explore_keyword_registry_app/user/css/fancytree/fancytree.custom.css",
-                              "core_main_registry_app/user/css/resource_banner/selection.css",
-                              "core_main_registry_app/user/css/resource_banner/resource_banner.css",
-                              "core_explore_keyword_registry_app/user/css/search/filters.css"])
+        assets['css'].extend([
+            "core_explore_keyword_registry_app/user/css/fancytree/fancytree.custom.css",
+            "core_main_registry_app/user/css/resource_banner/selection.css",
+            "core_main_registry_app/user/css/resource_banner/resource_banner.css",
+            "core_explore_keyword_registry_app/user/css/search/filters.css"
+        ])
 
         return assets
 
