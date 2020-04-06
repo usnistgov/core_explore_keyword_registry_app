@@ -1,5 +1,4 @@
 {%load get_attribute%}
-<div class="container">
 {% if data.error %}
     <div class="alert alert-danger"><i class="fa fa-times-circle"></i>
         {{ data.error }}
@@ -12,14 +11,14 @@
     {% endif %}
     <form id="form_search" action="{% url 'core_explore_keyword_app_search' %}" method="POST">
         {% csrf_token %}
-        <div class="row_index">
-            <div class="col-sm-12">
+        <div class="row row_index">
+            <div class="w-100">
                 {% include 'core_explore_keyword_app/user/search_bar.html' %}
             </div>
-            <div class="col-sm-12">
+            <div class="w-100">
                 {% include 'core_main_registry_app/resource_banner/resource_banner.html' %}
             </div>
-            <div class="col-sm-12">
+            <div class="w-100">
                 <div id="filters_refinements" class="filters-refinements">
                     <text>Search criteria used
                         (<a href="javascript:void(0)" class="clearAll">Clear all</a>):
@@ -29,16 +28,15 @@
                     <div class="category-list" style="display: none;">{{data|get_attribute:'category_list'}}</div>
                 </div>
             </div>
-            <div class="col-sm-3 search-left-panel">
+            <div class="col-md-3 search-left-panel">
                 {% include data.data_sources_selector_template %}
                 {% include "core_explore_keyword_registry_app/user/refinements.html" %}
             </div>
-            <div class="col-sm-9">
+            <div class="col-md-9">
                 {% include "core_explore_common_app/user/results/results.html" %}
             </div>
         </div>
     </form>
 {% endif %}
-</div>
 
 

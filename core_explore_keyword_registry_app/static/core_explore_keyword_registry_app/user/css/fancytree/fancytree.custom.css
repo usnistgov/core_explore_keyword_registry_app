@@ -7,6 +7,11 @@
     border: none;
 }
 
+.refinement {
+    color: #474747;
+    margin: 0;
+}
+
 .refinement a[class=""] .fa-chevron-up {
    display: none;
 }
@@ -34,4 +39,12 @@
 
 #refinements .collapse.in {
     display: block;
+}
+
+#refinements .show {
+    display: block !important;
+}
+
+#refinements .collapse:not(.show) {
+    display: none !important;
 }
