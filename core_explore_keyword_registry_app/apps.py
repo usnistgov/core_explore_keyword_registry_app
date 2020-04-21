@@ -1,5 +1,7 @@
 """ Apps file for setting core package when app is ready
 """
+import sys
+
 from django.apps import AppConfig
 
 from core_explore_keyword_registry_app import discover as discover_xslt
@@ -17,5 +19,6 @@ class ExploreKeywordRegistryAppConfig(AppConfig):
         Returns:
 
         """
-        discover_xslt.init_xslt()
-        discover_permissions.init_permissions(self.apps)
+        if 'migrate' not in sys.argv:
+            discover_xslt.init_xslt()
+            discover_permissions.init_permissions(self.apps)
