@@ -9,7 +9,7 @@ from core_main_registry_app.utils.fancytree.widget import FancyTreeWidget
 
 
 class RefinementForm(forms.Form):
-    prefix = 'refinement'
+    prefix = "refinement"
 
     def __init__(self, *args, **kwargs):
         super(RefinementForm, self).__init__(*args, **kwargs)
@@ -19,12 +19,14 @@ class RefinementForm(forms.Form):
         refinements = refinement_api.get_all_filtered_by_template_hash(template.hash)
         for refinement in refinements:
             categories = category_api.get_all_filtered_by_refinement_id(refinement.id)
-            self.fields[refinement.slug] = forms.ModelMultipleChoiceField(queryset=categories,
-                                                                          required=False,
-                                                                          label=refinement.name,
-                                                                          widget=FancyTreeWidget(
-                                                                              queryset=categories,
-                                                                              count_mode=True))
+            self.fields[refinement.slug] = forms.ModelMultipleChoiceField(
+                queryset=categories,
+                required=False,
+                label=refinement.name,
+                widget=FancyTreeWidget(queryset=categories, count_mode=True),
+            )
 
-            self.fields[refinement.slug].has_selected_values = \
-                kwargs.get('data').get("{0}-{1}".format(self.prefix, refinement.slug)) is not None
+            self.fields[refinement.slug].has_selected_values = (
+                kwargs.get("data").get("{0}-{1}".format(self.prefix, refinement.slug))
+                is not None
+            )

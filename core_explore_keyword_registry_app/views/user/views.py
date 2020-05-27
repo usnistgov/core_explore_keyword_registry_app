@@ -25,7 +25,6 @@ def update_content_not_deleted_status_criteria(content):
 
 
 class KeywordSearchRegistryView(KeywordSearchView):
-
     def _get(self, user, query_id):
         """ Update the GET context
 
@@ -61,33 +60,38 @@ class KeywordSearchRegistryView(KeywordSearchView):
             # save query
             query_api.upsert(query)
             # get all keywords back
-            refinement_selected_values = \
-                mongo_query_api.get_refinement_selected_values_from_query(content)
+            refinement_selected_values = mongo_query_api.get_refinement_selected_values_from_query(
+                content
+            )
             # build the data_form structure
             for key in refinement_selected_values:
                 for display_name in refinement_selected_values[key]:
                     list_element = refinement_selected_values[key][display_name]
-                    data_form.update({
-                        RefinementForm.prefix + '-' + key: [
-                            element["id"] for element in list_element
-                        ]
-                    })
-                    refinement_selected_types = [element["value"] for element in list_element]
+                    data_form.update(
+                        {
+                            RefinementForm.prefix
+                            + "-"
+                            + key: [element["id"] for element in list_element]
+                        }
+                    )
+                    refinement_selected_types = [
+                        element["value"] for element in list_element
+                    ]
                     # create the list of category
                     if len(refinement_selected_values[key]) > 0:
-                        category_list = "%s,%s|%s" % (category_list,
-                                                      display_name,
-                                                      key)
-                    context.update({'category_list': category_list})
+                        category_list = "%s,%s|%s" % (category_list, display_name, key)
+                    context.update({"category_list": category_list})
         except Exception as e:
-            context.update({
-                "error": "An unexpected error occurred while loading the query: %s." %
-                         str(e)
-            })
+            context.update(
+                {
+                    "error": "An unexpected error occurred while loading the query: %s."
+                    % str(e)
+                }
+            )
 
-        context.update({'refinement_form': RefinementForm(data=data_form)})
+        context.update({"refinement_form": RefinementForm(data=data_form)})
         # get all categories which must be selected in the table
-        context.update({'refinement_selected_types': refinement_selected_types})
+        context.update({"refinement_selected_types": refinement_selected_types})
 
         # Custom registry
         self._update_context_with_custom_resources(context)
@@ -120,7 +124,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 update_content_not_deleted_status_criteria(content)
                 # get selected refinements (categories)
                 for refinement_name, selected_categories in list(
-                        refinement_form.cleaned_data.items()
+                    refinement_form.cleaned_data.items()
                 ):
                     if len(selected_categories) > 0:
                         # Add categories ids
@@ -129,10 +133,15 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 # generate query
                 if len(refinements) > 0:
                     # get refinement query
-                    refinement_query = mongo_query_api.build_refinements_query(refinements)
+                    refinement_query = mongo_query_api.build_refinements_query(
+                        refinements
+                    )
                     # if we have a refinement query
                     if len(list(refinement_query.keys())) > 0:
-                        if "$and" in content.keys() and "$and" in refinement_query.keys():
+                        if (
+                            "$and" in content.keys()
+                            and "$and" in refinement_query.keys()
+                        ):
                             content["$and"] += refinement_query["$and"]
                         else:
                             content.update(refinement_query)
@@ -143,24 +152,28 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 query_api.upsert(query)
             except DoesNotExist:
                 error = "An unexpected error occurred while retrieving the query."
-                context.update({'error': error})
+                context.update({"error": error})
             except Exception as e:
                 error = "An unexpected error occurred: {}.".format(str(e))
-                context.update({'error': error})
+                context.update({"error": error})
 
-        context.update({'refinement_form': refinement_form})
+        context.update({"refinement_form": refinement_form})
 
         # get all categories which must be selected in the table
         if refinement_form.cleaned_data:
             # get the current template
             template = template_registry_api.get_current_registry_template()
             # get the refinement 'Type'
-            refinement = refinement_api.get_by_template_hash_and_by_slug(template.hash, 'type')
+            refinement = refinement_api.get_by_template_hash_and_by_slug(
+                template.hash, "type"
+            )
             # get the selected_types
             selected_types = refinement_form.cleaned_data.get(refinement.slug, None)
             # create the list of type
             if selected_types:
-                refinement_selected_types = get_all_parent_name_from_category_list(selected_types)
+                refinement_selected_types = get_all_parent_name_from_category_list(
+                    selected_types
+                )
             # create the list of category
             category_list = ""
             for key in refinement_form.cleaned_data:
@@ -168,12 +181,12 @@ class KeywordSearchRegistryView(KeywordSearchView):
                     category_list = "%s,%s|%s" % (
                         category_list,
                         refinement_form.cleaned_data[key][0].refinement.name,
-                        key
+                        key,
                     )
-            context.update({'category_list': category_list})
+            context.update({"category_list": category_list})
 
         # get all categories which must be selected in the table
-        context.update({'refinement_selected_types': refinement_selected_types})
+        context.update({"refinement_selected_types": refinement_selected_types})
         # Custom registry
         self._update_context_with_custom_resources(context)
         return context
@@ -188,20 +201,28 @@ class KeywordSearchRegistryView(KeywordSearchView):
         # TODO: use custom_resource to get cr_type_all
         cr_type_all = custom_resource_api.get_current_custom_resource_type_all()
         custom_resources = list(
-            custom_resource_api.get_all_of_current_template().order_by('sort'))
+            custom_resource_api.get_all_of_current_template().order_by("sort")
+        )
         dict_category_role = {}
         dict_refinements = {}
         for cr in custom_resources:
-            if custom_resource_api._is_custom_resource_type_resource(cr) and cr.display_icon:
-                dict_category_role[cr.role_type.split(':')[0]] = cr.slug
-            dict_refinements[cr.slug] = cr.refinements if len(cr.refinements) > 0 else []
-        context.update({
-            'custom_resources': custom_resources,
-            'display_not_resource': True,  # display all resource
-            'role_custom_resource_type_all': cr_type_all.slug,
-            'dict_category_role': json.dumps(dict_category_role),
-            'dict_refinements': json.dumps(dict_refinements)
-        })
+            if (
+                custom_resource_api._is_custom_resource_type_resource(cr)
+                and cr.display_icon
+            ):
+                dict_category_role[cr.role_type.split(":")[0]] = cr.slug
+            dict_refinements[cr.slug] = (
+                cr.refinements if len(cr.refinements) > 0 else []
+            )
+        context.update(
+            {
+                "custom_resources": custom_resources,
+                "display_not_resource": True,  # display all resource
+                "role_custom_resource_type_all": cr_type_all.slug,
+                "dict_category_role": json.dumps(dict_category_role),
+                "dict_refinements": json.dumps(dict_refinements),
+            }
+        )
 
     def _load_assets(self):
         """ Update assets structure relative to the registry
@@ -212,31 +233,35 @@ class KeywordSearchRegistryView(KeywordSearchView):
         assets = super(KeywordSearchRegistryView, self)._load_assets()
 
         # add all assets needed
-        assets['js'].extend([
-            {
-                "path": "core_explore_keyword_registry_app/user/js/search/tagit.custom.js",
-                "is_raw": False
-            },
-            {
-                "path": "core_explore_keyword_registry_app/user/js/search/fancytree.custom.js",
-                "is_raw": False
-            },
-            {
-                "path": "core_explore_keyword_registry_app/user/js/search/resource_type_icons_table.js",
-                "is_raw": False
-            },
-            {
-                "path": "core_explore_keyword_registry_app/user/js/search/filters.js",
-                "is_raw": False
-            },
-        ])
+        assets["js"].extend(
+            [
+                {
+                    "path": "core_explore_keyword_registry_app/user/js/search/tagit.custom.js",
+                    "is_raw": False,
+                },
+                {
+                    "path": "core_explore_keyword_registry_app/user/js/search/fancytree.custom.js",
+                    "is_raw": False,
+                },
+                {
+                    "path": "core_explore_keyword_registry_app/user/js/search/resource_type_icons_table.js",
+                    "is_raw": False,
+                },
+                {
+                    "path": "core_explore_keyword_registry_app/user/js/search/filters.js",
+                    "is_raw": False,
+                },
+            ]
+        )
 
-        assets['css'].extend([
-            "core_explore_keyword_registry_app/user/css/fancytree/fancytree.custom.css",
-            "core_main_registry_app/user/css/resource_banner/selection.css",
-            "core_main_registry_app/user/css/resource_banner/resource_banner.css",
-            "core_explore_keyword_registry_app/user/css/search/filters.css"
-        ])
+        assets["css"].extend(
+            [
+                "core_explore_keyword_registry_app/user/css/fancytree/fancytree.custom.css",
+                "core_main_registry_app/user/css/resource_banner/selection.css",
+                "core_main_registry_app/user/css/resource_banner/resource_banner.css",
+                "core_explore_keyword_registry_app/user/css/search/filters.css",
+            ]
+        )
 
         return assets
 

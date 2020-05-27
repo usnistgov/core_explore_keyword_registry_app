@@ -13,7 +13,9 @@ from django.views.generic import View
 from core_explore_common_app.components.query import api as query_api
 from core_explore_common_app.constants import LOCAL_QUERY_NAME
 from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchView
-from core_explore_keyword_registry_app.views.user.views import update_content_not_deleted_status_criteria
+from core_explore_keyword_registry_app.views.user.views import (
+    update_content_not_deleted_status_criteria,
+)
 from core_main_app.components.data import api as data_api
 from core_main_app.rest.data.views import ExecuteLocalQueryView
 from core_main_registry_app.components.category import api as category_api
@@ -21,7 +23,9 @@ from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import api as template_registry_api
 from core_main_registry_app.constants import CATEGORY_SUFFIX
 from core_oaipmh_harvester_app.components.oai_record import api as oai_record_api
-from core_oaipmh_harvester_app.rest.oai_record.views import ExecuteQueryView as OaiExecuteQueryView
+from core_oaipmh_harvester_app.rest.oai_record.views import (
+    ExecuteQueryView as OaiExecuteQueryView,
+)
 
 logger = getLogger(__name__)
 
@@ -30,6 +34,7 @@ class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
     """
 
     """
+
     def _get_query_prepared(self, keywords, query_id, request, template_ids):
         """ Prepare the query for suggestions.
 
@@ -41,10 +46,9 @@ class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
         Returns:
         """
 
-        query = super(SuggestionsKeywordRegistrySearchView, self)._get_query_prepared(keywords,
-                                                                                      query_id,
-                                                                                      request,
-                                                                                      template_ids)
+        query = super(SuggestionsKeywordRegistrySearchView, self)._get_query_prepared(
+            keywords, query_id, request, template_ids
+        )
 
         # Set visibility option for local data source
         query_api.set_visibility_to_query(query)
@@ -62,11 +66,12 @@ class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
 
 class RefinementCountView(View):
     """ Refinement count. """
-    id_key = '_id'
-    count_key = 'count'
-    ids_key = 'ids'
-    data_field = 'dict_content'
-    unknown_value = 'Unknown'
+
+    id_key = "_id"
+    count_key = "count"
+    ids_key = "ids"
+    data_field = "dict_content"
+    unknown_value = "Unknown"
 
     def __init__(self, **kwargs):
         super(RefinementCountView, self).__init__(**kwargs)
@@ -80,7 +85,7 @@ class RefinementCountView(View):
     def get(self, request, *args, **kwargs):
         try:
             # Get the query
-            query_id = request.GET.get('query_id', None)
+            query_id = request.GET.get("query_id", None)
             self.request = request
             self.query = query_api.get_by_id(query_id)
             # Build the count
@@ -88,7 +93,7 @@ class RefinementCountView(View):
         except Exception as e:
             return HttpResponseBadRequest("Something wrong happened: %s" % str(e))
 
-        return HttpResponse(json.dumps(self.results), 'application/javascript')
+        return HttpResponse(json.dumps(self.results), "application/javascript")
 
     def build_count(self):
         """ Count the number of records corresponding to each refinement.
@@ -116,14 +121,17 @@ class RefinementCountView(View):
                     self._get_local_data(data_source, data_sources_res)
 
                 # OAI-PMH
-                elif data_source.url_query.endswith(reverse(
-                        "core_explore_oaipmh_rest_execute_query")):
+                elif data_source.url_query.endswith(
+                    reverse("core_explore_oaipmh_rest_execute_query")
+                ):
                     self._get_oai_data(data_source, data_sources_res)
                 # Not supported
                 else:
-                    logger.info("No treatment available for the data source {0}, "
-                                "{1). Counters will not take into account this data "
-                                "source.".format(data_source.name, data_source.url_query))
+                    logger.info(
+                        "No treatment available for the data source {0}, "
+                        "{1). Counters will not take into account this data "
+                        "source.".format(data_source.name, data_source.url_query)
+                    )
 
             # Create a map to group the results from the data sources by category id
             res_map = defaultdict(list)
@@ -145,7 +153,9 @@ class RefinementCountView(View):
         """
         # Update results (id: category_id, count: nb_results). Use set() to avoid duplicates.
         for elt in res_map:
-            self.results.extend([{self.id_key: elt, self.count_key: len(set(res_map[elt]))}])
+            self.results.extend(
+                [{self.id_key: elt, self.count_key: len(set(res_map[elt]))}]
+            )
 
         # Take care of the categories' group
         for category in categories:
@@ -161,7 +171,9 @@ class RefinementCountView(View):
                         ids.update(res_map[str(f.id)])
 
                 # Add to the list of results
-                self.results.extend([{self.id_key: category.id, self.count_key: len(ids)}])
+                self.results.extend(
+                    [{self.id_key: category.id, self.count_key: len(ids)}]
+                )
 
     def _prepare_pipeline_categories(self, categories):
         """ Prepare the pipeline. Unwind the refinement field and group the results by category.
@@ -172,24 +184,34 @@ class RefinementCountView(View):
         Returns:
 
         """
-        ancestor_refinement_path = '.'.join(categories[0].path.split('.')[:-1])
+        ancestor_refinement_path = ".".join(categories[0].path.split(".")[:-1])
         refinement_paths = []
 
         # Unwind the field.
-        self.unwind = '{{ "$unwind" : {{ "path": "${0}.{1}", ' \
-                      '"preserveNullAndEmptyArrays": true }} }}'.format(self.data_field,
-                                                                        ancestor_refinement_path)
+        self.unwind = (
+            '{{ "$unwind" : {{ "path": "${0}.{1}", '
+            '"preserveNullAndEmptyArrays": true }} }}'.format(
+                self.data_field, ancestor_refinement_path
+            )
+        )
         for category in categories:
             if category.path not in refinement_paths:
                 refinement_paths.append(category.path)
-                self.unwind += ','
-                self.unwind += '{{ "$unwind" : {{ "path": "${0}.{1}", ' \
-                               '"preserveNullAndEmptyArrays": true }} }}'.format(self.data_field,
-                                                                        category.path)
-        self.project = '{{"$project": {{"__id": "${2}", "{2}": {{"$let": {{"vars":{{ {0} }},"in": {1}' \
-                       ' }}}}}}}}'.format(self._add_categories_name(categories),
-                                   self._add_category(deque(categories)),
-                                   self.id_key)
+                self.unwind += ","
+                self.unwind += (
+                    '{{ "$unwind" : {{ "path": "${0}.{1}", '
+                    '"preserveNullAndEmptyArrays": true }} }}'.format(
+                        self.data_field, category.path
+                    )
+                )
+        self.project = (
+            '{{"$project": {{"__id": "${2}", "{2}": {{"$let": {{"vars":{{ {0} }},"in": {1}'
+            " }}}}}}}}".format(
+                self._add_categories_name(categories),
+                self._add_category(deque(categories)),
+                self.id_key,
+            )
+        )
 
         # Group by category.
         self.group = '{"$group": {"_id": "$_id", "ids": {"$push": "$__id"},"count": { "$sum": 1 }}}'
@@ -217,9 +239,11 @@ class RefinementCountView(View):
         Returns:
 
         """
-        local_formatted_query = ExecuteLocalQueryView().build_query(query=self.query.content,
-                                                                    templates=self.query.templates,
-                                                                    options=data_source.query_options)
+        local_formatted_query = ExecuteLocalQueryView().build_query(
+            query=self.query.content,
+            templates=self.query.templates,
+            options=data_source.query_options,
+        )
         return local_formatted_query
 
     def _get_oai_data(self, data_source, res):
@@ -247,10 +271,12 @@ class RefinementCountView(View):
         """
         registries = []
         if data_source.query_options is not None:
-            registries.append(data_source.query_options['instance_id'])
-        oai_formatted_query = OaiExecuteQueryView(). \
-            build_query(query=self.query.content, templates=json.dumps(self.query.templates),
-                        registries=json.dumps(registries))
+            registries.append(data_source.query_options["instance_id"])
+        oai_formatted_query = OaiExecuteQueryView().build_query(
+            query=self.query.content,
+            templates=json.dumps(self.query.templates),
+            registries=json.dumps(registries),
+        )
         return oai_formatted_query
 
     def _get_pipeline(self, formatted_query):
@@ -263,7 +289,9 @@ class RefinementCountView(View):
 
         """
         self.match = '{{ "$match":  {0} }}'.format(dumps(formatted_query))
-        local_pipeline = '[{0}, {1}, {2}, {3}]'.format(self.match, self.unwind, self.project, self.group)
+        local_pipeline = "[{0}, {1}, {2}, {3}]".format(
+            self.match, self.unwind, self.project, self.group
+        )
         return local_pipeline
 
     def _add_categories_name(self, categories):
@@ -279,18 +307,25 @@ class RefinementCountView(View):
         category_map = {
             key: [category for category in group]
             for key, group in groupby(categories, lambda category: category.path)
-            }
+        }
         elt = []
         for key in category_map:
             # Need to remove specials characters to get a valid query.
-            name = re.sub('[^A-Za-z0-9]+', '', key).lower()
+            name = re.sub("[^A-Za-z0-9]+", "", key).lower()
             # Access to the field
-            elt += ['"{0}":{{"$ifNull": ["${1}.{2}", ""]}}'.format(name, self.data_field, key)]
+            elt += [
+                '"{0}":{{"$ifNull": ["${1}.{2}", ""]}}'.format(
+                    name, self.data_field, key
+                )
+            ]
             # Access to the field with #text.
-            elt += ['"{0}text":{{"$ifNull": ["${1}.{2}.#text", ""]}}'.format(name,
-                                                                             self.data_field, key)]
+            elt += [
+                '"{0}text":{{"$ifNull": ["${1}.{2}.#text", ""]}}'.format(
+                    name, self.data_field, key
+                )
+            ]
 
-        return ','.join(elt)
+        return ",".join(elt)
 
     def _add_category(self, categories):
         """ Add category query. Put all the categories in a switch case.
@@ -310,14 +345,18 @@ class RefinementCountView(View):
             # Remove the category.
             category = categories.popleft()
             # Get path
-            path = "$${0}".format(re.sub('[^A-Za-z0-9]+', '', category.path)).lower()
-            path_text = "$${0}text".format(re.sub('[^A-Za-z0-9]+', '', category.path)).lower()
+            path = "$${0}".format(re.sub("[^A-Za-z0-9]+", "", category.path)).lower()
+            path_text = "$${0}text".format(
+                re.sub("[^A-Za-z0-9]+", "", category.path)
+            ).lower()
             # Get value and group name (category id used here)
             value = category.value
             group_name = category.id
 
-            switch_cases.append('{{ "case": {{"$or": [ {{"$eq": ["{0}","{1}"]}}, {{"$eq": ["{2}","{3}"]}} ] }}, ' \
-                                 '"then": {4} }}'.format(path, value, path_text, value, group_name))
+            switch_cases.append(
+                '{{ "case": {{"$or": [ {{"$eq": ["{0}","{1}"]}}, {{"$eq": ["{2}","{3}"]}} ] }}, '
+                '"then": {4} }}'.format(path, value, path_text, value, group_name)
+            )
 
         # Join the switch cases
         cases = ",".join(switch_cases)
