@@ -1,10 +1,10 @@
 {% load xsl_transform_tag %}
 {{ data.refinement_form.media }}
 
-<div class="panel-group" id="refinements">
+<div class="card" id="refinements">
 {% for field in data.refinement_form %}
 	  <div class="panel panel-default">
-		<div class="card-header group-list-side-border">
+		<div class="card-header">
 			<a class="clearTree" href="javascript:void(0)" onclick="clearTree('#{{field.id_for_label}}', this)">
 				(Clear)
 			</a>
@@ -19,7 +19,7 @@
 		</div>
 		<div id="collapse_{{field.id_for_label}}"
 			 class="panel-collapse collapse{% if forloop.counter == 1 or field.field.has_selected_values %} show {% endif %}">
-			<div class="panel-body group-list-side-border">
+			<div class="panel-body">
                 {{ field }}
 			</div>
 		</div>
