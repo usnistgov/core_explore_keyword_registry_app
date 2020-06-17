@@ -26,6 +26,7 @@ from core_oaipmh_harvester_app.components.oai_record import api as oai_record_ap
 from core_oaipmh_harvester_app.rest.oai_record.views import (
     ExecuteQueryView as OaiExecuteQueryView,
 )
+from django.utils.html import escape
 
 logger = getLogger(__name__)
 
@@ -91,7 +92,9 @@ class RefinementCountView(View):
             # Build the count
             self.build_count()
         except Exception as e:
-            return HttpResponseBadRequest("Something wrong happened: %s" % str(e))
+            return HttpResponseBadRequest(
+                "Something wrong happened: %s" % escape(str(e))
+            )
 
         return HttpResponse(json.dumps(self.results), "application/javascript")
 
