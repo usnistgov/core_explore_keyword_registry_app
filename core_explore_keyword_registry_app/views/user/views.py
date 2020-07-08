@@ -74,9 +74,13 @@ class KeywordSearchRegistryView(KeywordSearchView):
                             + key: [element["id"] for element in list_element]
                         }
                     )
-                    refinement_selected_types = [
-                        element["value"] for element in list_element
-                    ]
+
+                    # add the selected type only for the display_name = Type
+                    if display_name == "Type":
+                        refinement_selected_types = [
+                            element["value"] for element in list_element
+                        ]
+
                     # create the list of category
                     if len(refinement_selected_values[key]) > 0:
                         category_list = "%s,%s|%s" % (category_list, display_name, key)
