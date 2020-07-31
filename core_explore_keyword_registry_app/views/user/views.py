@@ -147,6 +147,20 @@ class KeywordSearchRegistryView(KeywordSearchView):
                             and "$and" in refinement_query.keys()
                         ):
                             content["$and"] += refinement_query["$and"]
+                        elif (
+                            "$or" in content.keys() or "$text" in content.keys()
+                        ) and "$and" in refinement_query.keys():
+                            new_content = refinement_query
+                            # copy the text or the search operators in the main $and
+                            for key, value in content.items():
+                                if key == "$or" or key == "$text":
+                                    key_pair = {}
+                                    key_pair[key] = value
+                                    new_content["$and"].append(key_pair)
+                                else:
+                                    new_content[key] = value
+
+                            content = new_content
                         else:
                             content.update(refinement_query)
 
