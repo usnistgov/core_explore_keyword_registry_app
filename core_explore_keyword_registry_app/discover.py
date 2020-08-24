@@ -33,9 +33,15 @@ def init_xslt():
         template_version_manager = _get_registry_template()
         # Get or create XSLTs
         list_xslt = _get_or_create_xslt(LIST_XSL_FILENAME)
-        detail_xslt = _get_or_create_xslt(DETAIL_XSL_FILENAME)
+        default_detail_xslt = _get_or_create_xslt(DETAIL_XSL_FILENAME)
+        list_detail_xslt = [default_detail_xslt]
         # Create binding between template and XSLTs if does not exist
-        _bind_template_xslt(template_version_manager.current, list_xslt, detail_xslt)
+        _bind_template_xslt(
+            template_version_manager.current,
+            list_xslt,
+            default_detail_xslt,
+            list_detail_xslt,
+        )
     except Exception as e:
         print("ERROR : Impossible to init the XSLTs. " + str(e))
 
@@ -87,13 +93,14 @@ def _get_or_create_xslt(filename):
         )
 
 
-def _bind_template_xslt(template_id, list_xslt, detail_xslt):
+def _bind_template_xslt(template_id, list_xslt, default_detail_xslt, list_detail_xslt):
     """ Bind the registry template with the XSLTs.
 
     Args:
         template_id: Registry template id.
         list_xslt: List XSLT.
-        detail_xslt: Detail XSLT.
+        default_detail_xslt: Detail XSLT.
+        list_detail_xslt:
 
     Returns:
 
@@ -102,7 +109,10 @@ def _bind_template_xslt(template_id, list_xslt, detail_xslt):
         template_xsl_rendering_api.get_by_template_id(template_id)
     except exceptions.DoesNotExist:
         template_xsl_rendering_api.add_or_delete(
-            template_id=template_id, list_xslt=list_xslt, detail_xslt=detail_xslt
+            template_id=template_id,
+            list_xslt=list_xslt,
+            default_detail_xslt=default_detail_xslt,
+            list_detail_xslt=list_detail_xslt,
         )
     except Exception as e:
         raise Exception("Impossible to bind the template with XSLTs : " + str(e))
