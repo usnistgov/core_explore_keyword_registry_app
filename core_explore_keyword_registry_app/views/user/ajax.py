@@ -32,12 +32,10 @@ logger = getLogger(__name__)
 
 
 class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
-    """
-
-    """
+    """"""
 
     def _get_query_prepared(self, keywords, query_id, request, template_ids):
-        """ Prepare the query for suggestions.
+        """Prepare the query for suggestions.
 
         Args:
             keywords:
@@ -99,7 +97,7 @@ class RefinementCountView(View):
         return HttpResponse(json.dumps(self.results), "application/javascript")
 
     def build_count(self):
-        """ Count the number of records corresponding to each refinement.
+        """Count the number of records corresponding to each refinement.
 
         Returns:
 
@@ -145,7 +143,7 @@ class RefinementCountView(View):
             self._build_results(categories, res_map)
 
     def _build_results(self, categories, res_map):
-        """ Build the results dictionary.
+        """Build the results dictionary.
 
         Args:
             categories:
@@ -179,7 +177,7 @@ class RefinementCountView(View):
                 )
 
     def _prepare_pipeline_categories(self, categories):
-        """ Prepare the pipeline. Unwind the refinement field and group the results by category.
+        """Prepare the pipeline. Unwind the refinement field and group the results by category.
 
         Args:
             categories:
@@ -207,20 +205,17 @@ class RefinementCountView(View):
                         self.data_field, category.path
                     )
                 )
-        self.project = (
-            '{{"$project": {{"__id": "${2}", "{2}": {{"$let": {{"vars":{{ {0} }},"in": {1}'
-            " }}}}}}}}".format(
-                self._add_categories_name(categories),
-                self._add_category(deque(categories)),
-                self.id_key,
-            )
+        self.project = '{{"$project": {{"__id": "${2}", "{2}": {{"$let": {{"vars":{{ {0} }},"in": {1}' " }}}}}}}}".format(
+            self._add_categories_name(categories),
+            self._add_category(deque(categories)),
+            self.id_key,
         )
 
         # Group by category.
         self.group = '{"$group": {"_id": "$_id", "ids": {"$push": "$__id"},"count": { "$sum": 1 }}}'
 
     def _get_local_data(self, data_source, res):
-        """ Get local data based on the aggregation.
+        """Get local data based on the aggregation.
 
         Args:
             data_source:
@@ -234,7 +229,7 @@ class RefinementCountView(View):
         res.extend(data_api.aggregate(loads(local_pipeline), self.request.user))
 
     def _get_local_query(self, data_source):
-        """ Get local query.
+        """Get local query.
 
         Args:
             data_source:
@@ -250,7 +245,7 @@ class RefinementCountView(View):
         return local_formatted_query
 
     def _get_oai_data(self, data_source, res):
-        """ Get OAI-PMH data based on the aggregation.
+        """Get OAI-PMH data based on the aggregation.
 
         Args:
             data_source:
@@ -264,7 +259,7 @@ class RefinementCountView(View):
         res.extend(oai_record_api.aggregate((loads(oai_pipeline))))
 
     def _get_oai_query(self, data_source):
-        """ Get OAI-PMH query.
+        """Get OAI-PMH query.
 
         Args:
             data_source:
@@ -283,7 +278,7 @@ class RefinementCountView(View):
         return oai_formatted_query
 
     def _get_pipeline(self, formatted_query):
-        """ Get pipeline.
+        """Get pipeline.
 
         Args:
             formatted_query:
@@ -298,7 +293,7 @@ class RefinementCountView(View):
         return local_pipeline
 
     def _add_categories_name(self, categories):
-        """ Add categories name to the pipeline.
+        """Add categories name to the pipeline.
 
         Args:
             categories:
@@ -331,7 +326,7 @@ class RefinementCountView(View):
         return ",".join(elt)
 
     def _add_category(self, categories):
-        """ Add category query. Put all the categories in a switch case.
+        """Add category query. Put all the categories in a switch case.
         Each category will create a switch case which match to its ID
 
         Args:

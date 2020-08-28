@@ -11,13 +11,12 @@ from core_explore_keyword_registry_app.permissions import (
 
 
 class ExploreKeywordRegistryAppConfig(AppConfig):
-    """ Explore Keyword Registry application settings
-    """
+    """Explore Keyword Registry application settings"""
 
     name = "core_explore_keyword_registry_app"
 
     def ready(self):
-        """ Run when the app is ready.
+        """Run when the app is ready.
 
         Returns:
 

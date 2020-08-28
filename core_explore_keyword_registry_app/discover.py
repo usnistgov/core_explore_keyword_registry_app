@@ -23,7 +23,7 @@ from core_main_app.utils.file import read_file_content
 
 
 def init_xslt():
-    """ Init the XSLTs. Add XSLTs and the binding with the registry template.
+    """Init the XSLTs. Add XSLTs and the binding with the registry template.
 
     Returns:
 
@@ -47,7 +47,7 @@ def init_xslt():
 
 
 def _get_registry_template():
-    """ Get the registry template.
+    """Get the registry template.
 
     Returns:
         Registry Template.
@@ -66,7 +66,7 @@ def _get_registry_template():
 
 
 def _get_or_create_xslt(filename):
-    """ Get or create an xslt.
+    """Get or create an xslt.
 
     Args:
         filename: XSLT filename.
@@ -94,7 +94,7 @@ def _get_or_create_xslt(filename):
 
 
 def _bind_template_xslt(template_id, list_xslt, default_detail_xslt, list_detail_xslt):
-    """ Bind the registry template with the XSLTs.
+    """Bind the registry template with the XSLTs.
 
     Args:
         template_id: Registry template id.

@@ -14,7 +14,7 @@ from core_main_registry_app.components.template import api as template_registry_
 
 
 def update_content_not_deleted_status_criteria(content):
-    """ Only not DELETED records.
+    """Only not DELETED records.
 
     Args:
         content:
@@ -26,7 +26,7 @@ def update_content_not_deleted_status_criteria(content):
 
 class KeywordSearchRegistryView(KeywordSearchView):
     def _get(self, user, query_id):
-        """ Update the GET context
+        """Update the GET context
 
         Args:
             user:
@@ -60,8 +60,8 @@ class KeywordSearchRegistryView(KeywordSearchView):
             # save query
             query_api.upsert(query)
             # get all keywords back
-            refinement_selected_values = mongo_query_api.get_refinement_selected_values_from_query(
-                content
+            refinement_selected_values = (
+                mongo_query_api.get_refinement_selected_values_from_query(content)
             )
             # build the data_form structure
             for key in refinement_selected_values:
@@ -102,7 +102,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         return context
 
     def _post(self, request):
-        """ Update the POST context
+        """Update the POST context
 
         Args:
             request:
@@ -210,7 +210,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         return context
 
     def _update_context_with_custom_resources(self, context):
-        """ Update the context with custom resources.
+        """Update the context with custom resources.
 
         Args:
             context:
@@ -243,7 +243,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         )
 
     def _load_assets(self):
-        """ Update assets structure relative to the registry
+        """Update assets structure relative to the registry
 
         Returns:
 
@@ -285,7 +285,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
 
 
 def get_all_parent_name_from_category_list(categories):
-    """ Get the first parent name's list from a category list given
+    """Get the first parent name's list from a category list given
 
     Args:
         categories:
