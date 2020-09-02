@@ -33,6 +33,10 @@ div[name="result"] a[class="collapsed"] .fa-chevron-up {
     font-size: 0.9em;
 }
 
+.panel-body {
+    overflow: auto;
+}
+
 .description {
     text-align: justify;
     text-justify: inter-word;
