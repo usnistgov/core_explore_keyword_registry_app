@@ -6,12 +6,12 @@ from os.path import join
 
 from django.contrib.staticfiles import finders
 
-from core_explore_keyword_registry_app.constants import (
+from core_explore_keyword_registry_app.settings import (
     XSL_FOLDER_PATH,
     LIST_XSL_FILENAME,
     DETAIL_XSL_FILENAME,
+    REGISTRY_XSD_FILENAME,
 )
-from core_explore_keyword_registry_app.settings import REGISTRY_XSD_FILENAME
 from core_main_app.commons import exceptions
 from core_main_app.components.template_xsl_rendering import (
     api as template_xsl_rendering_api,
