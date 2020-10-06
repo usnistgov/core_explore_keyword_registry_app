@@ -48,17 +48,17 @@ class KeywordSearchRegistryView(KeywordSearchView):
 
         try:
             # get the query id
-            query = query_api.get_by_id(query_id)
+            query = query_api.get_by_id(query_id, self.request.user)
             # here we have to make sure to set the visibility and status criteria
             # set visibility
-            query_api.set_visibility_to_query(query)
+            query_api.set_visibility_to_query(query, self.request.user)
             # load content
             content = json.loads(query.content)
             # update content with status
             update_content_not_deleted_status_criteria(content)
             query.content = json.dumps(content)
             # save query
-            query_api.upsert(query)
+            query_api.upsert(query, self.request.user)
             # get all keywords back
             refinement_selected_values = (
                 mongo_query_api.get_refinement_selected_values_from_query(content)
@@ -121,7 +121,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         # validate form, test if no errors occurred in the parent treatment and query_id exists
         if refinement_form.is_valid() and error is None and query_id is not None:
             try:
-                query = query_api.get_by_id(query_id)
+                query = query_api.get_by_id(query_id, request.user)
                 content = json.loads(query.content)
                 refinements = []
                 # Update content with status
@@ -167,7 +167,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 # Update content
                 query.content = json.dumps(content)
                 # save query
-                query_api.upsert(query)
+                query_api.upsert(query, request.user)
             except DoesNotExist:
                 error = "An unexpected error occurred while retrieving the query."
                 context.update({"error": error})

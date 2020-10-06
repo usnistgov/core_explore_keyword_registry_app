@@ -50,7 +50,7 @@ class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
         )
 
         # Set visibility option for local data source
-        query_api.set_visibility_to_query(query)
+        query_api.set_visibility_to_query(query, request.user)
 
         content = json.loads(query.content)
 
@@ -86,7 +86,7 @@ class RefinementCountView(View):
             # Get the query
             query_id = request.GET.get("query_id", None)
             self.request = request
-            self.query = query_api.get_by_id(query_id)
+            self.query = query_api.get_by_id(query_id, request.user)
             # Build the count
             self.build_count()
         except Exception as e:
