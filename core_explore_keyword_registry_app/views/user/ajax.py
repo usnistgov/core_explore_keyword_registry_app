@@ -256,7 +256,7 @@ class RefinementCountView(View):
         """
         oai_formatted_query = self._get_oai_query(data_source)
         oai_pipeline = self._get_pipeline(oai_formatted_query)
-        res.extend(oai_record_api.aggregate((loads(oai_pipeline))))
+        res.extend(oai_record_api.aggregate((loads(oai_pipeline)), self.request.user))
 
     def _get_oai_query(self, data_source):
         """Get OAI-PMH query.
