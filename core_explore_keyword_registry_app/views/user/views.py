@@ -44,7 +44,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         # in case we don't find the query id in the context
         # a default query is created by inheritance
         if query_id is None:
-            raise ExploreRequestError("query id is missing")
+            return {"error": "query id is missing"}
 
         try:
             # get the query id
