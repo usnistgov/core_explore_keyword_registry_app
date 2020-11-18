@@ -13,13 +13,11 @@ from core_explore_keyword_registry_app.settings import (
     REGISTRY_XSD_FILENAME,
 )
 from core_main_app.commons import exceptions
-from core_main_app.components.template_xsl_rendering import (
-    api as template_xsl_rendering_api,
-)
-from core_main_app.components.version_manager import api as version_manager_api
+
 from core_main_app.components.xsl_transformation import api as xslt_transformation_api
 from core_main_app.components.xsl_transformation.models import XslTransformation
 from core_main_app.utils.file import read_file_content
+from core_main_app.utils.requests_utils.access_control import SYSTEM_REQUEST
 
 
 def init_xslt():
@@ -53,9 +51,11 @@ def _get_registry_template():
         Registry Template.
 
     """
+    from core_main_app.components.version_manager import api as version_manager_api
+
     try:
         return version_manager_api.get_active_global_version_manager_by_title(
-            REGISTRY_XSD_FILENAME
+            REGISTRY_XSD_FILENAME, request=SYSTEM_REQUEST
         )
     except Exception as e:
         raise Exception(
@@ -105,6 +105,10 @@ def _bind_template_xslt(template_id, list_xslt, default_detail_xslt, list_detail
     Returns:
 
     """
+    from core_main_app.components.template_xsl_rendering import (
+        api as template_xsl_rendering_api,
+    )
+
     try:
         template_xsl_rendering_api.get_by_template_id(template_id)
     except exceptions.DoesNotExist:

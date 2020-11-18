@@ -61,7 +61,9 @@ class KeywordSearchRegistryView(KeywordSearchView):
             query_api.upsert(query, self.request.user)
             # get all keywords back
             refinement_selected_values = (
-                mongo_query_api.get_refinement_selected_values_from_query(content)
+                mongo_query_api.get_refinement_selected_values_from_query(
+                    content, self.request
+                )
             )
             # build the data_form structure
             for key in refinement_selected_values:
@@ -93,7 +95,9 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 }
             )
 
-        context.update({"refinement_form": RefinementForm(data=data_form)})
+        context.update(
+            {"refinement_form": RefinementForm(data=data_form, request=self.request)}
+        )
         # get all categories which must be selected in the table
         context.update({"refinement_selected_types": refinement_selected_types})
 
@@ -112,7 +116,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         """
         context = super(KeywordSearchRegistryView, self)._post(request)
         # get refinement form
-        refinement_form = RefinementForm(data=request.POST)
+        refinement_form = RefinementForm(data=request.POST, request=request)
         # get query_id and error from the context
         error = context.get("error", None)
         query_id = context.get("query_id", None)
@@ -180,7 +184,9 @@ class KeywordSearchRegistryView(KeywordSearchView):
         # get all categories which must be selected in the table
         if refinement_form.cleaned_data:
             # get the current template
-            template = template_registry_api.get_current_registry_template()
+            template = template_registry_api.get_current_registry_template(
+                request=request
+            )
             # get the refinement 'Type'
             refinement = refinement_api.get_by_template_hash_and_by_slug(
                 template.hash, "type"
@@ -217,9 +223,13 @@ class KeywordSearchRegistryView(KeywordSearchView):
         Returns:
         """
         # TODO: use custom_resource to get cr_type_all
-        cr_type_all = custom_resource_api.get_current_custom_resource_type_all()
+        cr_type_all = custom_resource_api.get_current_custom_resource_type_all(
+            request=self.request
+        )
         custom_resources = list(
-            custom_resource_api.get_all_of_current_template().order_by("sort")
+            custom_resource_api.get_all_of_current_template(
+                request=self.request
+            ).order_by("sort")
         )
         dict_category_role = {}
         dict_refinements = {}

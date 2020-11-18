@@ -103,7 +103,9 @@ class RefinementCountView(View):
 
         """
         # Get global template.
-        template = template_registry_api.get_current_registry_template()
+        template = template_registry_api.get_current_registry_template(
+            request=self.request
+        )
         # Get refinements.
         refinements = refinement_api.get_all_filtered_by_template_hash(template.hash)
 

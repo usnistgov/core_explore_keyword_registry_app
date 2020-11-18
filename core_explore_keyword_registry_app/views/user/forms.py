@@ -12,9 +12,10 @@ class RefinementForm(forms.Form):
     prefix = "refinement"
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.pop("request")
         super(RefinementForm, self).__init__(*args, **kwargs)
         # Get global template.
-        template = template_registry_api.get_current_registry_template()
+        template = template_registry_api.get_current_registry_template(request=request)
         # Get refinements.
         refinements = refinement_api.get_all_filtered_by_template_hash(template.hash)
         for refinement in refinements:
