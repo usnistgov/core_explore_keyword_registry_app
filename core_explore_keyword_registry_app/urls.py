@@ -34,7 +34,7 @@ urlpatterns = [
         name="core_explore_keyword_get_persistent_query_url",
     ),
     re_path(
-        r"^results-redirect/(?P<persistent_query_id>\w+)",
+        r"^results-redirect",
         user_views.ResultQueryRedirectKeywordView.as_view(),
         name="core_explore_keyword_results_redirect",
     ),
