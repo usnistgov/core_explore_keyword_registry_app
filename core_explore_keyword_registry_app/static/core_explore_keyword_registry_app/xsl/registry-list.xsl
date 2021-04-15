@@ -49,8 +49,8 @@
 			<xsl:variable name="idw">{{ result.detail_url|slice:'-24:' }}</xsl:variable>
 			<a data-toggle="collapse" data-target="#{$idw}"
 			  aria-expanded="false" aria-controls="{$idw}" class="collapsed">
-				<i class="fa fa-chevron-up" />
-				<i class="fa fa-chevron-down" />
+				<i class="fas fa-chevron-up" />
+				<i class="fas fa-chevron-down" />
 			</a>
 			<div class="collapseXSLT collapse" id="{$idw}">
 					<xsl:apply-templates select="//*[not(*)]"/>
