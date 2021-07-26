@@ -64,7 +64,7 @@ class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
 
 
 class RefinementCountView(View):
-    """ Refinement count. """
+    """Refinement count."""
 
     id_key = "_id"
     count_key = "count"
