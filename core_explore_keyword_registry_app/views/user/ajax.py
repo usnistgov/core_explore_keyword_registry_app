@@ -6,8 +6,9 @@ from itertools import groupby
 from logging import getLogger
 
 from bson.json_util import dumps, loads
-from django.urls import reverse
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.urls import reverse
+from django.utils.html import escape
 from django.views.generic import View
 
 from core_explore_common_app.components.query import api as query_api
@@ -26,7 +27,6 @@ from core_oaipmh_harvester_app.components.oai_record import api as oai_record_ap
 from core_oaipmh_harvester_app.rest.oai_record.views import (
     ExecuteQueryView as OaiExecuteQueryView,
 )
-from django.utils.html import escape
 
 logger = getLogger(__name__)
 
@@ -120,11 +120,11 @@ class RefinementCountView(View):
             # FIXME: Decouple data source.
             for data_source in self.query.data_sources:
                 # find local data source
-                if data_source.name == LOCAL_QUERY_NAME:
+                if data_source["name"] == LOCAL_QUERY_NAME:
                     self._get_local_data(data_source, data_sources_res)
 
                 # OAI-PMH
-                elif data_source.url_query.endswith(
+                elif data_source["url_query"].endswith(
                     reverse("core_explore_oaipmh_rest_execute_query")
                 ):
                     self._get_oai_data(data_source, data_sources_res)
@@ -133,7 +133,7 @@ class RefinementCountView(View):
                     logger.info(
                         "No treatment available for the data source {0}, "
                         "{1). Counters will not take into account this data "
-                        "source.".format(data_source.name, data_source.url_query)
+                        "source.".format(data_source["name"], data_source["url_query"])
                     )
 
             # Create a map to group the results from the data sources by category id
@@ -241,8 +241,8 @@ class RefinementCountView(View):
         """
         local_formatted_query = ExecuteLocalQueryView().build_query(
             query=self.query.content,
-            templates=self.query.templates,
-            options=data_source.query_options,
+            templates=self.query.templates.all(),
+            options=data_source["query_options"],
         )
         return local_formatted_query
 
@@ -270,8 +270,8 @@ class RefinementCountView(View):
 
         """
         registries = []
-        if data_source.query_options is not None:
-            registries.append(data_source.query_options["instance_id"])
+        if data_source["query_options"] is not None:
+            registries.append(data_source["query_options"]["instance_id"])
         oai_formatted_query = OaiExecuteQueryView().build_query(
             query=self.query.content,
             templates=json.dumps(self.query.templates),

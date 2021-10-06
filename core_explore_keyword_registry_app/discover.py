@@ -13,11 +13,10 @@ from core_explore_keyword_registry_app.settings import (
     REGISTRY_XSD_FILENAME,
 )
 from core_main_app.commons import exceptions
-
 from core_main_app.components.xsl_transformation import api as xslt_transformation_api
 from core_main_app.components.xsl_transformation.models import XslTransformation
-from core_main_app.utils.file import read_file_content
 from core_main_app.system import api as system_api
+from core_main_app.utils.file import read_file_content
 
 
 def init_xslt():
@@ -111,7 +110,7 @@ def _bind_template_xslt(template_id, list_xslt, default_detail_xslt, list_detail
         template_xsl_rendering_api.get_by_template_id(template_id)
     except exceptions.DoesNotExist:
         template_xsl_rendering_api.add_or_delete(
-            template_id=template_id,
+            template=system_api.get_template_by_id(template_id),
             list_xslt=list_xslt,
             default_detail_xslt=default_detail_xslt,
             list_detail_xslt=list_detail_xslt,

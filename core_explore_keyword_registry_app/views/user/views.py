@@ -3,7 +3,6 @@
 import json
 
 import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
-from core_explore_common_app.commons.exceptions import ExploreRequestError
 from core_explore_common_app.components.query import api as query_api
 from core_explore_keyword_app.views.user.views import KeywordSearchView
 from core_explore_keyword_registry_app.views.user.forms import RefinementForm
