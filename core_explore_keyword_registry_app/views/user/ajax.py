@@ -5,7 +5,6 @@ from collections import deque
 from itertools import groupby
 from logging import getLogger
 
-from bson.json_util import dumps, loads
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.urls import reverse
 from django.utils.html import escape
@@ -228,7 +227,7 @@ class RefinementCountView(View):
         """
         local_formatted_query = self._get_local_query(data_source)
         local_pipeline = self._get_pipeline(local_formatted_query)
-        res.extend(data_api.aggregate(loads(local_pipeline), self.request.user))
+        res.extend(data_api.aggregate(json.loads(local_pipeline), self.request.user))
 
     def _get_local_query(self, data_source):
         """Get local query.
@@ -258,7 +257,9 @@ class RefinementCountView(View):
         """
         oai_formatted_query = self._get_oai_query(data_source)
         oai_pipeline = self._get_pipeline(oai_formatted_query)
-        res.extend(oai_record_api.aggregate((loads(oai_pipeline)), self.request.user))
+        res.extend(
+            oai_record_api.aggregate((json.loads(oai_pipeline)), self.request.user)
+        )
 
     def _get_oai_query(self, data_source):
         """Get OAI-PMH query.
