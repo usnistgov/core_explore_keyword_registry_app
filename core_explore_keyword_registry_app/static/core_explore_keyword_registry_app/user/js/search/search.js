@@ -10,5 +10,5 @@ shortenDescription = function() {
 
 $(document).ready(function() {
     shortenDescription();
-//    getRefinementsCount();
+    getRefinementsCount();
 });

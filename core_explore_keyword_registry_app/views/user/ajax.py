@@ -16,17 +16,21 @@ from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchVie
 from core_explore_keyword_registry_app.views.user.views import (
     update_content_not_deleted_status_criteria,
 )
-from core_main_app.components.data import api as data_api
 from core_main_app.rest.data.views import ExecuteLocalQueryView
+from core_main_app.settings import MONGODB_INDEXING
 from core_main_registry_app.components.category import api as category_api
 from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import api as template_registry_api
 from core_main_registry_app.constants import CATEGORY_SUFFIX
-from core_oaipmh_harvester_app.components.oai_record import api as oai_record_api
 from core_oaipmh_harvester_app.rest.oai_record.views import (
     ExecuteQueryView as OaiExecuteQueryView,
 )
 
+if MONGODB_INDEXING:
+    from core_main_app.components.mongo import api as main_mongo_api
+    from core_oaipmh_harvester_app.components.mongo import (
+        api as oai_harvester_mongo_api,
+    )
 logger = getLogger(__name__)
 
 
@@ -82,6 +86,10 @@ class RefinementCountView(View):
 
     def get(self, request, *args, **kwargs):
         try:
+            if not MONGODB_INDEXING:
+                return HttpResponseBadRequest(
+                    "MongoDB Data indexing is required. Set MONGODB_INDEXING=True."
+                )
             # Get the query
             query_id = request.GET.get("query_id", None)
             self.request = request
@@ -227,7 +235,9 @@ class RefinementCountView(View):
         """
         local_formatted_query = self._get_local_query(data_source)
         local_pipeline = self._get_pipeline(local_formatted_query)
-        res.extend(data_api.aggregate(json.loads(local_pipeline), self.request.user))
+        res.extend(
+            main_mongo_api.aggregate(json.loads(local_pipeline), self.request.user)
+        )
 
     def _get_local_query(self, data_source):
         """Get local query.
@@ -258,7 +268,9 @@ class RefinementCountView(View):
         oai_formatted_query = self._get_oai_query(data_source)
         oai_pipeline = self._get_pipeline(oai_formatted_query)
         res.extend(
-            oai_record_api.aggregate((json.loads(oai_pipeline)), self.request.user)
+            oai_harvester_mongo_api.aggregate(
+                (json.loads(oai_pipeline)), self.request.user
+            )
         )
 
     def _get_oai_query(self, data_source):
@@ -272,10 +284,10 @@ class RefinementCountView(View):
         """
         registries = []
         if data_source["query_options"] is not None:
-            registries.append(data_source["query_options"]["instance_id"])
+            registries.append(int(data_source["query_options"]["instance_id"]))
         oai_formatted_query = OaiExecuteQueryView().build_query(
             query=self.query.content,
-            templates=json.dumps(self.query.templates),
+            templates=json.dumps(list(self.query.templates.values_list("id"))),
             registries=json.dumps(registries),
         )
         return oai_formatted_query
@@ -289,7 +301,7 @@ class RefinementCountView(View):
         Returns:
 
         """
-        self.match = '{{ "$match":  {0} }}'.format(dumps(formatted_query))
+        self.match = '{{ "$match":  {0} }}'.format(json.dumps(formatted_query))
         local_pipeline = "[{0}, {1}, {2}, {3}]".format(
             self.match, self.unwind, self.project, self.group
         )
