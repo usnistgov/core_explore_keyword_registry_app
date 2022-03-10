@@ -163,22 +163,20 @@ class RefinementCountView(View):
         """
         # Update results (id: category_id, count: nb_results). Use set() to avoid duplicates.
         for elt in res_map:
-            self.results.extend(
-                [{self.id_key: elt, self.count_key: len(set(res_map[elt]))}]
-            )
+            self.results.extend([{self.id_key: elt, self.count_key: len(res_map[elt])}])
 
         # Take care of the categories' group
         for category in categories:
             # If it's a group category
             if category.value.endswith(CATEGORY_SUFFIX):
-                ids = set([])
+                ids = list()
                 # Get the all family
                 family = category.get_family()
                 # Add each count
                 for f in family:
                     # Look if we have a count for this element
                     if str(f.id) in res_map:
-                        ids.update(res_map[str(f.id)])
+                        ids.extend(res_map[str(f.id)])
 
                 # Add to the list of results
                 self.results.extend(
