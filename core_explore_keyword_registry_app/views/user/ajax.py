@@ -163,20 +163,22 @@ class RefinementCountView(View):
         """
         # Update results (id: category_id, count: nb_results). Use set() to avoid duplicates.
         for elt in res_map:
-            self.results.extend([{self.id_key: elt, self.count_key: len(res_map[elt])}])
+            self.results.extend(
+                [{self.id_key: elt, self.count_key: len(set(res_map[elt]))}]
+            )
 
         # Take care of the categories' group
         for category in categories:
             # If it's a group category
             if category.value.endswith(CATEGORY_SUFFIX):
-                ids = list()
+                ids = set()
                 # Get the all family
                 family = category.get_family()
                 # Add each count
                 for f in family:
                     # Look if we have a count for this element
                     if str(f.id) in res_map:
-                        ids.extend(res_map[str(f.id)])
+                        ids.update(res_map[str(f.id)])
 
                 # Add to the list of results
                 self.results.extend(
@@ -215,11 +217,11 @@ class RefinementCountView(View):
         self.project = '{{"$project": {{"__id": "${2}", "{2}": {{"$let": {{"vars":{{ {0} }},"in": {1}' " }}}}}}}}".format(
             self._add_categories_name(categories),
             self._add_category(deque(categories)),
-            self.id_key,
+            "mongo_id",
         )
 
         # Group by category.
-        self.group = '{"$group": {"_id": "$_id", "ids": {"$push": "$__id"},"count": { "$sum": 1 }}}'
+        self.group = '{"$group": {"_id": "$mongo_id", "ids": {"$push": "$__id"},"count": { "$sum": 1 }}}'
 
     def _get_local_data(self, data_source, res):
         """Get local data based on the aggregation.
