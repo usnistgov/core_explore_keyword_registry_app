@@ -214,10 +214,13 @@ class RefinementCountView(View):
                         self.data_field, category.path
                     )
                 )
-        self.project = '{{"$project": {{"__id": "${2}", "{2}": {{"$let": {{"vars":{{ {0} }},"in": {1}' " }}}}}}}}".format(
-            self._add_categories_name(categories),
-            self._add_category(deque(categories)),
-            "mongo_id",
+        self.project = (
+            '{{"$project": {{"__id": "${2}", "{2}": {{"$let": {{"vars":{{ {0} }},"in": {1}'
+            " }}}}}}}}".format(
+                self._add_categories_name(categories),
+                self._add_category(deque(categories)),
+                "mongo_id",
+            )
         )
 
         # Group by category.
