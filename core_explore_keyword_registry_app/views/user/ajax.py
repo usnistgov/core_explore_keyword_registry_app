@@ -139,7 +139,7 @@ class RefinementCountView(View):
                 else:
                     logger.info(
                         "No treatment available for the data source {0}, "
-                        "{1). Counters will not take into account this data "
+                        "{1}. Counters will not take into account this data "
                         "source.".format(data_source["name"], data_source["url_query"])
                     )
 
