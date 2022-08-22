@@ -1,7 +1,9 @@
+""" Explore keyword registry user ajax
+"""
+
 import json
 import re
-from collections import defaultdict
-from collections import deque
+from collections import defaultdict, deque
 from itertools import groupby
 from logging import getLogger
 
@@ -10,32 +12,34 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic import View
 
-from core_explore_common_app.components.query import api as query_api
-from core_explore_common_app.constants import LOCAL_QUERY_NAME
-from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchView
-from core_explore_keyword_registry_app.views.user.views import (
-    update_content_not_deleted_status_criteria,
+from core_oaipmh_harvester_app.rest.oai_record.views import (
+    ExecuteQueryView as OaiExecuteQueryView,
 )
-from core_main_app.rest.data.views import ExecuteLocalQueryView
-from core_main_app.settings import MONGODB_INDEXING
 from core_main_registry_app.components.category import api as category_api
 from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import api as template_registry_api
 from core_main_registry_app.constants import CATEGORY_SUFFIX
-from core_oaipmh_harvester_app.rest.oai_record.views import (
-    ExecuteQueryView as OaiExecuteQueryView,
-)
+from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchView
+
+from core_explore_common_app.components.query import api as query_api
+from core_explore_common_app.constants import LOCAL_QUERY_NAME
+from core_main_app.rest.data.views import ExecuteLocalQueryView
+from core_main_app.settings import MONGODB_INDEXING
 
 if MONGODB_INDEXING:
     from core_main_app.components.mongo import api as main_mongo_api
     from core_oaipmh_harvester_app.components.mongo import (
         api as oai_harvester_mongo_api,
     )
+from core_explore_keyword_registry_app.views.user.views import (
+    update_content_not_deleted_status_criteria,
+)
+
 logger = getLogger(__name__)
 
 
 class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
-    """"""
+    """Suggestions Keyword Registry Search View"""
 
     def _get_query_prepared(self, keywords, query_id, request, template_ids):
         """Prepare the query for suggestions.
@@ -48,9 +52,7 @@ class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
         Returns:
         """
 
-        query = super(SuggestionsKeywordRegistrySearchView, self)._get_query_prepared(
-            keywords, query_id, request, template_ids
-        )
+        query = super()._get_query_prepared(keywords, query_id, request, template_ids)
 
         # Set visibility option for local data source
         query_api.set_visibility_to_query(query, request.user)
@@ -76,7 +78,7 @@ class RefinementCountView(View):
     unknown_value = "Unknown"
 
     def __init__(self, **kwargs):
-        super(RefinementCountView, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.query = None
         self.match = None
         self.unwind = None
@@ -85,6 +87,13 @@ class RefinementCountView(View):
         self.results = []
 
     def get(self, request, *args, **kwargs):
+        """get
+        Args:
+            request
+
+        Returns:
+
+        """
         try:
             if not MONGODB_INDEXING:
                 return HttpResponseBadRequest(
@@ -96,9 +105,9 @@ class RefinementCountView(View):
             self.query = query_api.get_by_id(query_id, request.user)
             # Build the count
             self.build_count()
-        except Exception as e:
+        except Exception as exception:
             return HttpResponseBadRequest(
-                "Something wrong happened: %s" % escape(str(e))
+                f"Something wrong happened: {escape(str(exception))}"
             )
 
         return HttpResponse(json.dumps(self.results), "application/javascript")
@@ -138,9 +147,11 @@ class RefinementCountView(View):
                 # Not supported
                 else:
                     logger.info(
-                        "No treatment available for the data source {0}, "
-                        "{1}. Counters will not take into account this data "
-                        "source.".format(data_source["name"], data_source["url_query"])
+                        "No treatment available for the data source %s, "
+                        "%s. Counters will not take into account this data "
+                        "source.",
+                        data_source["name"],
+                        data_source["url_query"],
                     )
 
             # Create a map to group the results from the data sources by category id
@@ -175,10 +186,10 @@ class RefinementCountView(View):
                 # Get the all family
                 family = category.get_family()
                 # Add each count
-                for f in family:
+                for element in family:
                     # Look if we have a count for this element
-                    if str(f.id) in res_map:
-                        ids.update(res_map[str(f.id)])
+                    if str(element.id) in res_map:
+                        ids.update(res_map[str(element.id)])
 
                 # Add to the list of results
                 self.results.extend(

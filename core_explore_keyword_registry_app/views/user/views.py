@@ -2,14 +2,14 @@
 """
 import json
 
-import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
-from core_explore_common_app.components.query import api as query_api
-from core_explore_keyword_app.views.user.views import KeywordSearchView
-from core_explore_keyword_registry_app.views.user.forms import RefinementForm
 from core_main_app.commons.exceptions import DoesNotExist
+import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
 from core_main_registry_app.components.custom_resource import api as custom_resource_api
 from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import api as template_registry_api
+from core_explore_common_app.components.query import api as query_api
+from core_explore_keyword_app.views.user.views import KeywordSearchView
+from core_explore_keyword_registry_app.views.user.forms import RefinementForm
 
 
 def update_content_not_deleted_status_criteria(content):
@@ -24,6 +24,8 @@ def update_content_not_deleted_status_criteria(content):
 
 
 class KeywordSearchRegistryView(KeywordSearchView):
+    """Keyword Search Registry View"""
+
     def _get(self, user, query_id):
         """Update the GET context
 
@@ -34,7 +36,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         Returns:
 
         """
-        context = super(KeywordSearchRegistryView, self)._get(user, query_id)
+        context = super()._get(user, query_id)
         data_form = {}
         refinement_selected_types = []
         category_list = ""
@@ -86,11 +88,10 @@ class KeywordSearchRegistryView(KeywordSearchView):
                     if len(refinement_selected_values[key]) > 0:
                         category_list = "%s,%s|%s" % (category_list, display_name, key)
                     context.update({"category_list": category_list})
-        except Exception as e:
+        except Exception as exception:
             context.update(
                 {
-                    "error": "An unexpected error occurred while loading the query: %s."
-                    % str(e)
+                    f'error": "An unexpected error occurred while loading the query: {str(exception)}.'
                 }
             )
 
@@ -113,7 +114,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         Returns:
 
         """
-        context = super(KeywordSearchRegistryView, self)._post(request)
+        context = super()._post(request)
         # get refinement form
         refinement_form = RefinementForm(data=request.POST, request=request)
         # get query_id and error from the context
@@ -174,8 +175,8 @@ class KeywordSearchRegistryView(KeywordSearchView):
             except DoesNotExist:
                 error = "An unexpected error occurred while retrieving the query."
                 context.update({"error": error})
-            except Exception as e:
-                error = "An unexpected error occurred: {}.".format(str(e))
+            except Exception as exception:
+                error = f"An unexpected error occurred: {str(exception)}."
                 context.update({"error": error})
 
         context.update({"refinement_form": refinement_form})
@@ -232,14 +233,18 @@ class KeywordSearchRegistryView(KeywordSearchView):
         )
         dict_category_role = {}
         dict_refinements = {}
-        for cr in custom_resources:
+        for custom_resource in custom_resources:
             if (
-                custom_resource_api._is_custom_resource_type_resource(cr)
-                and cr.display_icon
+                custom_resource_api._is_custom_resource_type_resource(custom_resource)
+                and custom_resource.display_icon
             ):
-                dict_category_role[cr.role_type.split(":")[0]] = cr.slug
-            dict_refinements[cr.slug] = (
-                cr.refinements if len(cr.refinements) > 0 else []
+                dict_category_role[
+                    custom_resource.role_type.split(":")[0]
+                ] = custom_resource.slug
+            dict_refinements[custom_resource.slug] = (
+                custom_resource.refinements
+                if len(custom_resource.refinements) > 0
+                else []
             )
         context.update(
             {
@@ -257,7 +262,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         Returns:
 
         """
-        assets = super(KeywordSearchRegistryView, self)._load_assets()
+        assets = super()._load_assets()
 
         # add all assets needed
         assets["js"].extend(
