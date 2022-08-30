@@ -23,7 +23,7 @@ def init_permissions(apps):
 
         # Get explore keyword permissions
         explore_access_perm = permission.objects.get(
-            codename=explore_keyword_rights.explore_keyword_access
+            codename=explore_keyword_rights.EXPLORE_KEYWORD_ACCESS
         )
 
         # add permissions to anonymous group
