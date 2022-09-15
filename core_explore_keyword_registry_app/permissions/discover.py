@@ -2,8 +2,8 @@
 """
 from __future__ import print_function
 
-from core_explore_keyword_app.permissions import rights as explore_keyword_rights
 from core_main_app.permissions import rights as main_rights
+from core_explore_keyword_app.permissions import rights as explore_keyword_rights
 
 
 def init_permissions(apps):
@@ -18,18 +18,18 @@ def init_permissions(apps):
 
         # Get or Create the anonymous group
         anonymous_group, created = group.objects.get_or_create(
-            name=main_rights.anonymous_group
+            name=main_rights.ANONYMOUS_GROUP
         )
 
         # Get explore keyword permissions
         explore_access_perm = permission.objects.get(
-            codename=explore_keyword_rights.explore_keyword_access
+            codename=explore_keyword_rights.EXPLORE_KEYWORD_ACCESS
         )
 
         # add permissions to anonymous group
         anonymous_group.permissions.add(explore_access_perm)
-    except Exception as e:
+    except Exception as exception:
         print(
             "ERROR : Impossible to init the permissions for core_explore_keyword_registry_app : "
-            "" + str(e)
+            "" + str(exception)
         )

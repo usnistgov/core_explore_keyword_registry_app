@@ -1,38 +1,45 @@
+""" Explore keyword registry user ajax
+"""
+
 import json
 import re
-from collections import defaultdict
-from collections import deque
+from collections import defaultdict, deque
 from itertools import groupby
 from logging import getLogger
 
-from bson.json_util import dumps, loads
-from django.urls import reverse
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.urls import reverse
+from django.utils.html import escape
 from django.views.generic import View
 
-from core_explore_common_app.components.query import api as query_api
-from core_explore_common_app.constants import LOCAL_QUERY_NAME
-from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchView
-from core_explore_keyword_registry_app.views.user.views import (
-    update_content_not_deleted_status_criteria,
+from core_oaipmh_harvester_app.rest.oai_record.views import (
+    ExecuteQueryView as OaiExecuteQueryView,
 )
-from core_main_app.components.data import api as data_api
-from core_main_app.rest.data.views import ExecuteLocalQueryView
 from core_main_registry_app.components.category import api as category_api
 from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import api as template_registry_api
 from core_main_registry_app.constants import CATEGORY_SUFFIX
-from core_oaipmh_harvester_app.components.oai_record import api as oai_record_api
-from core_oaipmh_harvester_app.rest.oai_record.views import (
-    ExecuteQueryView as OaiExecuteQueryView,
+from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchView
+
+from core_explore_common_app.components.query import api as query_api
+from core_explore_common_app.constants import LOCAL_QUERY_NAME
+from core_main_app.rest.data.views import ExecuteLocalQueryView
+from core_main_app.settings import MONGODB_INDEXING
+
+if MONGODB_INDEXING:
+    from core_main_app.components.mongo import api as main_mongo_api
+    from core_oaipmh_harvester_app.components.mongo import (
+        api as oai_harvester_mongo_api,
+    )
+from core_explore_keyword_registry_app.views.user.views import (
+    update_content_not_deleted_status_criteria,
 )
-from django.utils.html import escape
 
 logger = getLogger(__name__)
 
 
 class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
-    """"""
+    """Suggestions Keyword Registry Search View"""
 
     def _get_query_prepared(self, keywords, query_id, request, template_ids):
         """Prepare the query for suggestions.
@@ -45,9 +52,7 @@ class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
         Returns:
         """
 
-        query = super(SuggestionsKeywordRegistrySearchView, self)._get_query_prepared(
-            keywords, query_id, request, template_ids
-        )
+        query = super()._get_query_prepared(keywords, query_id, request, template_ids)
 
         # Set visibility option for local data source
         query_api.set_visibility_to_query(query, request.user)
@@ -73,7 +78,7 @@ class RefinementCountView(View):
     unknown_value = "Unknown"
 
     def __init__(self, **kwargs):
-        super(RefinementCountView, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.query = None
         self.match = None
         self.unwind = None
@@ -82,16 +87,27 @@ class RefinementCountView(View):
         self.results = []
 
     def get(self, request, *args, **kwargs):
+        """get
+        Args:
+            request
+
+        Returns:
+
+        """
         try:
+            if not MONGODB_INDEXING:
+                return HttpResponseBadRequest(
+                    "MongoDB Data indexing is required. Set MONGODB_INDEXING=True."
+                )
             # Get the query
             query_id = request.GET.get("query_id", None)
             self.request = request
             self.query = query_api.get_by_id(query_id, request.user)
             # Build the count
             self.build_count()
-        except Exception as e:
+        except Exception as exception:
             return HttpResponseBadRequest(
-                "Something wrong happened: %s" % escape(str(e))
+                f"Something wrong happened: {escape(str(exception))}"
             )
 
         return HttpResponse(json.dumps(self.results), "application/javascript")
@@ -120,20 +136,22 @@ class RefinementCountView(View):
             # FIXME: Decouple data source.
             for data_source in self.query.data_sources:
                 # find local data source
-                if data_source.name == LOCAL_QUERY_NAME:
+                if data_source["name"] == LOCAL_QUERY_NAME:
                     self._get_local_data(data_source, data_sources_res)
 
                 # OAI-PMH
-                elif data_source.url_query.endswith(
+                elif data_source["url_query"].endswith(
                     reverse("core_explore_oaipmh_rest_execute_query")
                 ):
                     self._get_oai_data(data_source, data_sources_res)
                 # Not supported
                 else:
                     logger.info(
-                        "No treatment available for the data source {0}, "
-                        "{1). Counters will not take into account this data "
-                        "source.".format(data_source.name, data_source.url_query)
+                        "No treatment available for the data source %s, "
+                        "%s. Counters will not take into account this data "
+                        "source.",
+                        data_source["name"],
+                        data_source["url_query"],
                     )
 
             # Create a map to group the results from the data sources by category id
@@ -164,14 +182,14 @@ class RefinementCountView(View):
         for category in categories:
             # If it's a group category
             if category.value.endswith(CATEGORY_SUFFIX):
-                ids = set([])
+                ids = set()
                 # Get the all family
                 family = category.get_family()
                 # Add each count
-                for f in family:
+                for element in family:
                     # Look if we have a count for this element
-                    if str(f.id) in res_map:
-                        ids.update(res_map[str(f.id)])
+                    if str(element.id) in res_map:
+                        ids.update(res_map[str(element.id)])
 
                 # Add to the list of results
                 self.results.extend(
@@ -212,12 +230,12 @@ class RefinementCountView(View):
             " }}}}}}}}".format(
                 self._add_categories_name(categories),
                 self._add_category(deque(categories)),
-                self.id_key,
+                "mongo_id",
             )
         )
 
         # Group by category.
-        self.group = '{"$group": {"_id": "$_id", "ids": {"$push": "$__id"},"count": { "$sum": 1 }}}'
+        self.group = '{"$group": {"_id": "$mongo_id", "ids": {"$push": "$__id"},"count": { "$sum": 1 }}}'
 
     def _get_local_data(self, data_source, res):
         """Get local data based on the aggregation.
@@ -231,7 +249,9 @@ class RefinementCountView(View):
         """
         local_formatted_query = self._get_local_query(data_source)
         local_pipeline = self._get_pipeline(local_formatted_query)
-        res.extend(data_api.aggregate(loads(local_pipeline), self.request.user))
+        res.extend(
+            main_mongo_api.aggregate(json.loads(local_pipeline), self.request.user)
+        )
 
     def _get_local_query(self, data_source):
         """Get local query.
@@ -244,8 +264,8 @@ class RefinementCountView(View):
         """
         local_formatted_query = ExecuteLocalQueryView().build_query(
             query=self.query.content,
-            templates=self.query.templates,
-            options=data_source.query_options,
+            templates=self.query.templates.all(),
+            options=data_source["query_options"],
         )
         return local_formatted_query
 
@@ -261,7 +281,11 @@ class RefinementCountView(View):
         """
         oai_formatted_query = self._get_oai_query(data_source)
         oai_pipeline = self._get_pipeline(oai_formatted_query)
-        res.extend(oai_record_api.aggregate((loads(oai_pipeline)), self.request.user))
+        res.extend(
+            oai_harvester_mongo_api.aggregate(
+                (json.loads(oai_pipeline)), self.request.user
+            )
+        )
 
     def _get_oai_query(self, data_source):
         """Get OAI-PMH query.
@@ -273,11 +297,11 @@ class RefinementCountView(View):
 
         """
         registries = []
-        if data_source.query_options is not None:
-            registries.append(data_source.query_options["instance_id"])
+        if data_source["query_options"] is not None:
+            registries.append(int(data_source["query_options"]["instance_id"]))
         oai_formatted_query = OaiExecuteQueryView().build_query(
             query=self.query.content,
-            templates=json.dumps(self.query.templates),
+            templates=json.dumps(list(self.query.templates.values_list("id"))),
             registries=json.dumps(registries),
         )
         return oai_formatted_query
@@ -291,7 +315,7 @@ class RefinementCountView(View):
         Returns:
 
         """
-        self.match = '{{ "$match":  {0} }}'.format(dumps(formatted_query))
+        self.match = '{{ "$match":  {0} }}'.format(json.dumps(formatted_query))
         local_pipeline = "[{0}, {1}, {2}, {3}]".format(
             self.match, self.unwind, self.project, self.group
         )

@@ -9,11 +9,13 @@ from core_main_registry_app.utils.fancytree.widget import FancyTreeWidget
 
 
 class RefinementForm(forms.Form):
+    """Refinement Form"""
+
     prefix = "refinement"
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop("request")
-        super(RefinementForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Get global template.
         template = template_registry_api.get_current_registry_template(request=request)
         # Get refinements.
@@ -28,6 +30,5 @@ class RefinementForm(forms.Form):
             )
 
             self.fields[refinement.slug].has_selected_values = (
-                kwargs.get("data").get("{0}-{1}".format(self.prefix, refinement.slug))
-                is not None
+                kwargs.get("data").get(f"{self.prefix}-{refinement.slug}") is not None
             )
