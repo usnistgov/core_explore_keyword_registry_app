@@ -3,9 +3,14 @@
 
 from django.urls import re_path, include
 
-from core_explore_keyword_app.views.user import views as user_views, ajax as user_ajax
+from core_explore_keyword_app.views.user import (
+    views as user_views,
+    ajax as user_ajax,
+)
 from core_explore_keyword_registry_app.views.user import ajax as registry_ajax
-from core_explore_keyword_registry_app.views.user import views as registry_views
+from core_explore_keyword_registry_app.views.user import (
+    views as registry_views,
+)
 
 urlpatterns = [
     re_path(

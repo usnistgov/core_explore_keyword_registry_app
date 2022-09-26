@@ -23,6 +23,8 @@ LIST_XSL_FILENAME = getattr(settings, "LIST_XSL_FILENAME", "registry-list.xsl")
 """" str : List xsl filename used for the initialisation.
 """
 
-DETAIL_XSL_FILENAME = getattr(settings, "DETAIL_XSL_FILENAME", "registry-detail.xsl")
+DETAIL_XSL_FILENAME = getattr(
+    settings, "DETAIL_XSL_FILENAME", "registry-detail.xsl"
+)
 """  str : Detail xsl filename used for the initialisation.
 """

@@ -8,8 +8,12 @@ from core_main_app.commons import exceptions
 from core_main_app.components.template_xsl_rendering import (
     api as template_xsl_rendering_api,
 )
-from core_main_app.components.xsl_transformation import api as xslt_transformation_api
-from core_main_app.components.xsl_transformation.models import XslTransformation
+from core_main_app.components.xsl_transformation import (
+    api as xslt_transformation_api,
+)
+from core_main_app.components.xsl_transformation.models import (
+    XslTransformation,
+)
 from core_main_app.system import api as system_api
 from core_main_app.utils.file import read_file_content
 
@@ -85,10 +89,14 @@ def _get_or_create_xslt(filename):
         )
         return xslt_transformation_api.upsert(list_xslt)
     except Exception as exception:
-        raise Exception(f"Impossible to add the xslt {filename} : {str(exception)} ")
+        raise Exception(
+            f"Impossible to add the xslt {filename} : {str(exception)} "
+        )
 
 
-def _bind_template_xslt(template_id, list_xslt, default_detail_xslt, list_detail_xslt):
+def _bind_template_xslt(
+    template_id, list_xslt, default_detail_xslt, list_detail_xslt
+):
     """Bind the registry template with the XSLTs.
 
     Args:

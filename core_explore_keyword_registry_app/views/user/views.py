@@ -4,9 +4,13 @@ import json
 
 from core_main_app.commons.exceptions import DoesNotExist
 import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
-from core_main_registry_app.components.custom_resource import api as custom_resource_api
+from core_main_registry_app.components.custom_resource import (
+    api as custom_resource_api,
+)
 from core_main_registry_app.components.refinement import api as refinement_api
-from core_main_registry_app.components.template import api as template_registry_api
+from core_main_registry_app.components.template import (
+    api as template_registry_api,
+)
 from core_explore_common_app.components.query import api as query_api
 from core_explore_keyword_app.views.user.views import KeywordSearchView
 from core_explore_keyword_registry_app.views.user.forms import RefinementForm
@@ -69,7 +73,9 @@ class KeywordSearchRegistryView(KeywordSearchView):
             # build the data_form structure
             for key in refinement_selected_values:
                 for display_name in refinement_selected_values[key]:
-                    list_element = refinement_selected_values[key][display_name]
+                    list_element = refinement_selected_values[key][
+                        display_name
+                    ]
                     data_form.update(
                         {
                             RefinementForm.prefix
@@ -86,7 +92,11 @@ class KeywordSearchRegistryView(KeywordSearchView):
 
                     # create the list of category
                     if len(refinement_selected_values[key]) > 0:
-                        category_list = "%s,%s|%s" % (category_list, display_name, key)
+                        category_list = "%s,%s|%s" % (
+                            category_list,
+                            display_name,
+                            key,
+                        )
                     context.update({"category_list": category_list})
         except Exception as exception:
             context.update(
@@ -96,10 +106,16 @@ class KeywordSearchRegistryView(KeywordSearchView):
             )
 
         context.update(
-            {"refinement_form": RefinementForm(data=data_form, request=self.request)}
+            {
+                "refinement_form": RefinementForm(
+                    data=data_form, request=self.request
+                )
+            }
         )
         # get all categories which must be selected in the table
-        context.update({"refinement_selected_types": refinement_selected_types})
+        context.update(
+            {"refinement_selected_types": refinement_selected_types}
+        )
 
         # Custom registry
         self._update_context_with_custom_resources(context)
@@ -123,7 +139,11 @@ class KeywordSearchRegistryView(KeywordSearchView):
         refinement_selected_types = []
 
         # validate form, test if no errors occurred in the parent treatment and query_id exists
-        if refinement_form.is_valid() and error is None and query_id is not None:
+        if (
+            refinement_form.is_valid()
+            and error is None
+            and query_id is not None
+        ):
             try:
                 query = query_api.get_by_id(query_id, request.user)
                 content = json.loads(query.content)
@@ -152,7 +172,8 @@ class KeywordSearchRegistryView(KeywordSearchView):
                         ):
                             content["$and"] += refinement_query["$and"]
                         elif (
-                            "$or" in content.keys() or "$text" in content.keys()
+                            "$or" in content.keys()
+                            or "$text" in content.keys()
                         ) and "$and" in refinement_query.keys():
                             new_content = refinement_query
                             # copy the text or the search operators in the main $and
@@ -173,7 +194,9 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 # save query
                 query_api.upsert(query, request.user)
             except DoesNotExist:
-                error = "An unexpected error occurred while retrieving the query."
+                error = (
+                    "An unexpected error occurred while retrieving the query."
+                )
                 context.update({"error": error})
             except Exception as exception:
                 error = f"An unexpected error occurred: {str(exception)}."
@@ -192,11 +215,13 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 template.hash, "type"
             )
             # get the selected_types
-            selected_types = refinement_form.cleaned_data.get(refinement.slug, None)
+            selected_types = refinement_form.cleaned_data.get(
+                refinement.slug, None
+            )
             # create the list of type
             if selected_types:
-                refinement_selected_types = get_all_parent_name_from_category_list(
-                    selected_types
+                refinement_selected_types = (
+                    get_all_parent_name_from_category_list(selected_types)
                 )
             # create the list of category
             category_list = ""
@@ -210,7 +235,9 @@ class KeywordSearchRegistryView(KeywordSearchView):
             context.update({"category_list": category_list})
 
         # get all categories which must be selected in the table
-        context.update({"refinement_selected_types": refinement_selected_types})
+        context.update(
+            {"refinement_selected_types": refinement_selected_types}
+        )
         # Custom registry
         self._update_context_with_custom_resources(context)
         return context
@@ -235,7 +262,9 @@ class KeywordSearchRegistryView(KeywordSearchView):
         dict_refinements = {}
         for custom_resource in custom_resources:
             if (
-                custom_resource_api._is_custom_resource_type_resource(custom_resource)
+                custom_resource_api._is_custom_resource_type_resource(
+                    custom_resource
+                )
                 and custom_resource.display_icon
             ):
                 dict_category_role[

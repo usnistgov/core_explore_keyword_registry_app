@@ -17,9 +17,13 @@ from core_oaipmh_harvester_app.rest.oai_record.views import (
 )
 from core_main_registry_app.components.category import api as category_api
 from core_main_registry_app.components.refinement import api as refinement_api
-from core_main_registry_app.components.template import api as template_registry_api
+from core_main_registry_app.components.template import (
+    api as template_registry_api,
+)
 from core_main_registry_app.constants import CATEGORY_SUFFIX
-from core_explore_keyword_app.views.user.ajax import SuggestionsKeywordSearchView
+from core_explore_keyword_app.views.user.ajax import (
+    SuggestionsKeywordSearchView,
+)
 
 from core_explore_common_app.components.query import api as query_api
 from core_explore_common_app.constants import LOCAL_QUERY_NAME
@@ -52,7 +56,9 @@ class SuggestionsKeywordRegistrySearchView(SuggestionsKeywordSearchView):
         Returns:
         """
 
-        query = super()._get_query_prepared(keywords, query_id, request, template_ids)
+        query = super()._get_query_prepared(
+            keywords, query_id, request, template_ids
+        )
 
         # Set visibility option for local data source
         query_api.set_visibility_to_query(query, request.user)
@@ -123,7 +129,9 @@ class RefinementCountView(View):
             request=self.request
         )
         # Get refinements.
-        refinements = refinement_api.get_all_filtered_by_template_hash(template.hash)
+        refinements = refinement_api.get_all_filtered_by_template_hash(
+            template.hash
+        )
 
         # For each refinement
         for refinement in refinements:
@@ -158,7 +166,9 @@ class RefinementCountView(View):
             res_map = defaultdict(list)
             # Formatting results
             for elt in data_sources_res:
-                res_map[str(elt.get(self.id_key))].extend(elt.get(self.ids_key))
+                res_map[str(elt.get(self.id_key))].extend(
+                    elt.get(self.ids_key)
+                )
 
             self._build_results(categories, res_map)
 
@@ -250,7 +260,9 @@ class RefinementCountView(View):
         local_formatted_query = self._get_local_query(data_source)
         local_pipeline = self._get_pipeline(local_formatted_query)
         res.extend(
-            main_mongo_api.aggregate(json.loads(local_pipeline), self.request.user)
+            main_mongo_api.aggregate(
+                json.loads(local_pipeline), self.request.user
+            )
         )
 
     def _get_local_query(self, data_source):
@@ -333,7 +345,9 @@ class RefinementCountView(View):
         # Group by categories.
         category_map = {
             key: [category for category in group]
-            for key, group in groupby(categories, lambda category: category.path)
+            for key, group in groupby(
+                categories, lambda category: category.path
+            )
         }
         elt = []
         for key in category_map:
@@ -372,7 +386,9 @@ class RefinementCountView(View):
             # Remove the category.
             category = categories.popleft()
             # Get path
-            path = "$${0}".format(re.sub("[^A-Za-z0-9]+", "", category.path)).lower()
+            path = "$${0}".format(
+                re.sub("[^A-Za-z0-9]+", "", category.path)
+            ).lower()
             path_text = "$${0}text".format(
                 re.sub("[^A-Za-z0-9]+", "", category.path)
             ).lower()
@@ -382,7 +398,9 @@ class RefinementCountView(View):
 
             switch_cases.append(
                 '{{ "case": {{"$or": [ {{"$eq": ["{0}","{1}"]}}, {{"$eq": ["{2}","{3}"]}} ] }}, '
-                '"then": {4} }}'.format(path, value, path_text, value, group_name)
+                '"then": {4} }}'.format(
+                    path, value, path_text, value, group_name
+                )
             )
 
         # Join the switch cases
