@@ -1,7 +1,5 @@
 """ discover for core explore keyword registry app
 """
-from __future__ import print_function
-
 from os.path import join
 
 from django.contrib.staticfiles import finders
