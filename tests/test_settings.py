@@ -10,3 +10,5 @@ INSTALLED_APPS = [
     # Local apps
     "tests",
 ]
+MONGODB_INDEXING = False
+MONGODB_ASYNC_SAVE = False
