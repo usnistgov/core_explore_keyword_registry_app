@@ -12,23 +12,25 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic import View
 
-from core_oaipmh_harvester_app.rest.oai_record.views import (
-    ExecuteQueryView as OaiExecuteQueryView,
+from core_explore_common_app.components.query import api as query_api
+from core_explore_common_app.constants import LOCAL_QUERY_NAME
+from core_explore_keyword_app.views.user.ajax import (
+    SuggestionsKeywordSearchView,
 )
+from core_main_app.rest.data.views import ExecuteLocalQueryView
+from core_main_app.settings import MONGODB_INDEXING
 from core_main_registry_app.components.category import api as category_api
 from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import (
     api as template_registry_api,
 )
 from core_main_registry_app.constants import CATEGORY_SUFFIX
-from core_explore_keyword_app.views.user.ajax import (
-    SuggestionsKeywordSearchView,
+from core_oaipmh_harvester_app.rest.oai_record.views import (
+    ExecuteQueryView as OaiExecuteQueryView,
 )
-
-from core_explore_common_app.components.query import api as query_api
-from core_explore_common_app.constants import LOCAL_QUERY_NAME
-from core_main_app.rest.data.views import ExecuteLocalQueryView
-from core_main_app.settings import MONGODB_INDEXING
+from core_oaipmh_harvester_app.utils.query.mongo.query_builder import (
+    OaiPmhAggregateQueryBuilder,
+)
 
 if MONGODB_INDEXING:
     from core_main_app.components.mongo import api as main_mongo_api
@@ -311,7 +313,9 @@ class RefinementCountView(View):
         registries = []
         if data_source["query_options"] is not None:
             registries.append(int(data_source["query_options"]["instance_id"]))
-        oai_formatted_query = OaiExecuteQueryView().build_query(
+        oai_formatted_query = OaiExecuteQueryView(
+            query_builder=OaiPmhAggregateQueryBuilder
+        ).build_query(
             query=self.query.content,
             templates=json.dumps(list(self.query.templates.values_list("id"))),
             registries=json.dumps(registries),
