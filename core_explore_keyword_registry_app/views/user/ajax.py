@@ -8,14 +8,17 @@ from itertools import groupby
 from logging import getLogger
 
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic import View
 
 from core_explore_common_app.components.query import api as query_api
-from core_explore_common_app.constants import LOCAL_QUERY_NAME
+from core_explore_common_app.utils.oaipmh import oaipmh as oaipmh_utils
+from core_explore_common_app.utils.query import query as query_utils
 from core_explore_keyword_app.views.user.ajax import (
     SuggestionsKeywordSearchView,
+)
+from core_explore_keyword_registry_app.views.user.views import (
+    update_content_not_deleted_status_criteria,
 )
 from core_main_app.rest.data.views import ExecuteLocalQueryView
 from core_main_app.settings import MONGODB_INDEXING
@@ -37,9 +40,7 @@ if MONGODB_INDEXING:
     from core_oaipmh_harvester_app.components.mongo import (
         api as oai_harvester_mongo_api,
     )
-from core_explore_keyword_registry_app.views.user.views import (
-    update_content_not_deleted_status_criteria,
-)
+
 
 logger = getLogger(__name__)
 
@@ -146,13 +147,11 @@ class RefinementCountView(View):
             # FIXME: Decouple data source.
             for data_source in self.query.data_sources:
                 # find local data source
-                if data_source["name"] == LOCAL_QUERY_NAME:
+                if query_utils.is_local_data_source(data_source):
                     self._get_local_data(data_source, data_sources_res)
 
                 # OAI-PMH
-                elif data_source["url_query"].endswith(
-                    reverse("core_explore_oaipmh_rest_execute_query")
-                ):
+                elif oaipmh_utils.is_oai_data_source(data_source):
                     self._get_oai_data(data_source, data_sources_res)
                 # Not supported
                 else:
