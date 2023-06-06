@@ -45,7 +45,7 @@
 				<xsl:value-of select="$publisher"/>
 			</div>
 			<xsl:variable name="url" select="//nr:Resource/nr:content/nr:landingPage" />
-			<a target="_blank" href="{$url}"><xsl:value-of select="$url"/></a>
+			<a target="_blank" rel="noopener noreferrer" href="{$url}"><xsl:value-of select="$url"/></a>
 			<xsl:variable name="idw">{{ result.detail_url|slice:'-24:' }}</xsl:variable>
 			<a data-toggle="collapse" data-target="#{$idw}"
 			  aria-expanded="false" aria-controls="{$idw}" class="collapsed">
@@ -100,7 +100,7 @@
 			<xsl:if test="$value!=''">
 				<xsl:value-of select="$name"/>
 				<xsl:text>: </xsl:text>
-				<a target="_blank" href="{$value}"><xsl:value-of select="$value"/></a>
+				<a target="_blank" rel="noopener noreferrer" href="{$value}"><xsl:value-of select="$value"/></a>
 				<br/>
 			</xsl:if>
 		</xsl:if>

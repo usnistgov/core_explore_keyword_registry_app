@@ -80,7 +80,7 @@
 						</strong>
 						<xsl:choose>
 							<xsl:when test="( (contains($name, 'URL')) or (starts-with($value, 'https://')) or (starts-with($value, 'http://')) )">
-								<a target="_blank" href="{$value}"><xsl:value-of select="$value"/></a>
+								<a target="_blank" rel="noopener noreferrer" href="{$value}"><xsl:value-of select="$value"/></a>
 							</xsl:when>
 							<xsl:otherwise>
 								<xsl:value-of select="$value"/>
@@ -168,7 +168,7 @@
 					<xsl:value-of select="$name" /> <xsl:text>: </xsl:text>
 					<xsl:choose>
 						<xsl:when test="( (contains($name, 'URL')) or (starts-with($value, 'https://')) or (starts-with($value, 'http://')) )">
-							<a target="_blank" href="{$value}"><xsl:value-of select="$value"/></a>
+							<a target="_blank" rel="noopener noreferrer" href="{$value}"><xsl:value-of select="$value"/></a>
 						</xsl:when>
 						<xsl:otherwise>
 							<xsl:value-of select="$value"/>
