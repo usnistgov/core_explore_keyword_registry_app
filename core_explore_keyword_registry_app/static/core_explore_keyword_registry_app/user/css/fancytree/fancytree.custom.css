@@ -12,7 +12,11 @@
     margin: 0;
 }
 
-.refinement a[class=""] .fa-chevron-up {
+.refinement a i.fas {
+   font-size: 1rem;
+}
+
+.refinement a[class=""] .fa-chevron-right {
    display: none;
 }
 
