@@ -9,7 +9,7 @@
 				(Clear)
 			</a>
 			<h4 class="panel-title refinement">
-				<a data-toggle="collapse" href="#collapse_{{field.id_for_label}}"
+				<a {% if BOOTSTRAP_VERSION == "4.6.2" %}data-toggle{% elif BOOTSTRAP_VERSION == "5.1.3"%}data-bs-toggle{% endif %}="collapse" href="#collapse_{{field.id_for_label}}"
 				   class="{% if forloop.counter != 1 and field.field.has_selected_values|lower == 'false' %}collapsed{% endif %}">
 					<i class="fas fa-chevron-right"></i>
 					<i class="fas fa-chevron-down"></i>
