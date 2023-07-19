@@ -1,5 +1,7 @@
 {% load render_extras %}
+{% load parse_date %}
 {% load json_date %}
+{% load tz %}
 <div name="result">
     <div>
         <input data-template-id="{{result.template_info.id}}"
@@ -13,7 +15,7 @@
             <i class="fas fa-pencil-alt permissions-icon edit" aria-hidden="true"></i>
         </a>
     {% endif %}
-    <div title="Last modification date" class="data-info-right-container">{{result.last_modification_date|json_date:"N d Y g:iA"}}</div>
+    <div title="Last modification date" class="data-info-right-container">{{result.last_modification_date|parse_date|localtime|json_date:"N d Y g:iA"}}</div>
     <div class="xml-representation-container">
         {% render_as_template xml_representation %}
     </div>
