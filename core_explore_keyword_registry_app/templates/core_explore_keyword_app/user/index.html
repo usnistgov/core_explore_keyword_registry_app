@@ -30,6 +30,9 @@
             </div>
             <div class="col-md-3 search-left-panel">
                 {% include data.data_sources_selector_template %}
+                {% if data.allow_multiple_schemas %}
+                    {% include 'core_explore_keyword_app/user/template_filter.html' %}
+                {% endif %}
                 {% include "core_explore_keyword_registry_app/user/refinements.html" %}
             </div>
             <div class="col-md-9">

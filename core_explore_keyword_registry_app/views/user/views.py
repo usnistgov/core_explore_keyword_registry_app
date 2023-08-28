@@ -1,9 +1,12 @@
-"""Core Explore Keyword App views
+"""Core Explore Keyword Registry App views
 """
 import json
 
-from core_main_app.commons.exceptions import DoesNotExist
 import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
+from core_explore_common_app.components.query import api as query_api
+from core_explore_keyword_app.views.user.views import KeywordSearchView
+from core_explore_keyword_registry_app.views.user.forms import RefinementForm
+from core_main_app.commons.exceptions import DoesNotExist
 from core_main_registry_app.components.custom_resource import (
     api as custom_resource_api,
 )
@@ -11,9 +14,7 @@ from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import (
     api as template_registry_api,
 )
-from core_explore_common_app.components.query import api as query_api
-from core_explore_keyword_app.views.user.views import KeywordSearchView
-from core_explore_keyword_registry_app.views.user.forms import RefinementForm
+from core_main_registry_app.settings import ALLOW_MULTIPLE_SCHEMAS
 
 
 def update_content_not_deleted_status_criteria(content):
@@ -114,7 +115,10 @@ class KeywordSearchRegistryView(KeywordSearchView):
         )
         # get all categories which must be selected in the table
         context.update(
-            {"refinement_selected_types": refinement_selected_types}
+            {
+                "refinement_selected_types": refinement_selected_types,
+                "allow_multiple_schemas": ALLOW_MULTIPLE_SCHEMAS,
+            }
         )
 
         # Custom registry

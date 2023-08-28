@@ -1,4 +1,5 @@
 {% load xsl_transform_tag %}
+{% load blob_tags %}
 {% load static %}
 
 <link rel="stylesheet" href="{% static 'core_explore_keyword_registry_app/user/css/search/search.css' %}" />
@@ -6,10 +7,17 @@
 <script src="{% static 'core_explore_keyword_registry_app/user/js/search/search.js' %}"></script>
 
 {% for result in results %}
-    {% xsl_transform_list xml_content=result.xml_content template_id=result.template_info.id template_hash=result.template_info.hash request=request as xml_representation%}
-    {% include 'core_explore_common_app/user/results/data_source_info.html' with xml_representation=xml_representation|safe %}
+    {% if result.template_info.format == 'XSD' %}
+        {% xsl_transform_list xml_content=result.content template_id=result.template_info.id template_hash=result.template_info.hash as html_string %}
+        {% if blobs_preview %}
+            {% render_blob_links_in_span xml_string=html_string as html_string %}
+        {% endif %}
+        {% include 'core_explore_common_app/user/results/data_source_info.html' with html_string=html_string|safe %}
+    {% else %}
+        {% include 'core_explore_common_app/user/results/data_source_info.html' with html_string=result.content|safe %}
+    {% endif %}
 {% empty %}
-<h4> No results were found.</h4>
+<span style="font-style:italic; color:red;"> No Results found... </span>
 {% endfor %}
 
 {% include 'core_explore_common_app/user/results/data_source_pagination.html'%}

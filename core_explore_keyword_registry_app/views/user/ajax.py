@@ -319,7 +319,12 @@ class RefinementCountView(View):
             query_builder=OaiPmhAggregateQueryBuilder
         ).build_query(
             query=self.query.content,
-            templates=json.dumps(list(self.query.templates.values_list("id"))),
+            templates=[
+                {"id": _id}
+                for _id in self.query.templates.all().values_list(
+                    "id", flat=True
+                )
+            ],
             registries=json.dumps(registries),
         )
         return oai_formatted_query

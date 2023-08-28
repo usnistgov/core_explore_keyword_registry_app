@@ -16,7 +16,19 @@
         </a>
     {% endif %}
     <div title="Last modification date" class="data-info-right-container">{{result.last_modification_date|parse_date|localtime|json_date:"N d Y g:iA"}}</div>
+    {% if result.template_info.format == 'XSD' %}
     <div class="xml-representation-container">
-        {% render_as_template xml_representation %}
+        {% render_as_template html_string %}
     </div>
+    {% else %}
+    <span class="result-title">
+        {% if result.detail_url %}
+        <a class="title" href="{{ result.detail_url }}">{{ result.title }}</a>
+        {% else %}
+        {{ result.title }}
+        {% endif %}
+    </span>
+    <pre><code>{{html_string}}</code></pre>
+    {% endif %}
+
 </div>
