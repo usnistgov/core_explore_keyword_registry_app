@@ -2,7 +2,7 @@
 """
 from unittest.mock import MagicMock, patch, Mock
 
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 
 from core_explore_keyword_registry_app.views.user.ajax import (
     RefinementCountView,
@@ -157,3 +157,27 @@ class TestRefinementCountView(TestCase):
 
         # Assert
         self.assertTrue(mock_get_oai_data.called)
+
+    @override_settings(MONGODB_INDEXING=False)
+    @override_settings(MONGODB_ASYNC_SAVE=False)
+    def test_RefinementCountView_with_mongodb_disabled_returns_http_bad_response(
+        self,
+    ):
+        """test_RefinementCountView_with_mongodb_disabled_returns_http_bad_response
+
+        Returns:
+
+        """
+        # Arrange
+        request = self.factory.get("core_explore_keyword_refinement_count")
+        request.user = self.user1
+
+        # Act
+        response = RefinementCountView.as_view()(request)
+
+        # Assert
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.content,
+            b"MongoDB Data indexing is required. Set MONGODB_INDEXING=True.",
+        )

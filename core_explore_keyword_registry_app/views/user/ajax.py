@@ -7,12 +7,12 @@ from collections import defaultdict, deque
 from itertools import groupby
 from logging import getLogger
 
+from django.conf import settings as conf_settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils.html import escape
 from django.views.generic import View
 
 from core_explore_common_app.components.query import api as query_api
-from core_explore_common_app.utils.oaipmh import oaipmh as oaipmh_utils
 from core_explore_common_app.utils.query import query as query_utils
 from core_explore_keyword_app.views.user.ajax import (
     SuggestionsKeywordSearchView,
@@ -21,26 +21,29 @@ from core_explore_keyword_registry_app.views.user.views import (
     update_content_not_deleted_status_criteria,
 )
 from core_main_app.rest.data.views import ExecuteLocalQueryView
-from core_main_app.settings import MONGODB_INDEXING
 from core_main_registry_app.components.category import api as category_api
 from core_main_registry_app.components.refinement import api as refinement_api
 from core_main_registry_app.components.template import (
     api as template_registry_api,
 )
 from core_main_registry_app.constants import CATEGORY_SUFFIX
-from core_oaipmh_harvester_app.rest.oai_record.views import (
-    ExecuteQueryView as OaiExecuteQueryView,
-)
-from core_oaipmh_harvester_app.utils.query.mongo.query_builder import (
-    OaiPmhAggregateQueryBuilder,
-)
 
-if MONGODB_INDEXING:
+if conf_settings.MONGODB_INDEXING:
     from core_main_app.components.mongo import api as main_mongo_api
-    from core_oaipmh_harvester_app.components.mongo import (
-        api as oai_harvester_mongo_api,
+
+if "core_explore_oaipmh_app" in conf_settings.INSTALLED_APPS:
+    from core_explore_common_app.utils.oaipmh import oaipmh as oaipmh_utils
+    from core_oaipmh_harvester_app.rest.oai_record.views import (
+        ExecuteQueryView as OaiExecuteQueryView,
+    )
+    from core_oaipmh_harvester_app.utils.query.mongo.query_builder import (
+        OaiPmhAggregateQueryBuilder,
     )
 
+    if conf_settings.MONGODB_INDEXING:
+        from core_oaipmh_harvester_app.components.mongo import (
+            api as oai_harvester_mongo_api,
+        )
 
 logger = getLogger(__name__)
 
@@ -104,7 +107,7 @@ class RefinementCountView(View):
 
         """
         try:
-            if not MONGODB_INDEXING:
+            if not conf_settings.MONGODB_INDEXING:
                 return HttpResponseBadRequest(
                     "MongoDB Data indexing is required. Set MONGODB_INDEXING=True."
                 )
