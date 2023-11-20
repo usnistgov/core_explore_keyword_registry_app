@@ -21,6 +21,7 @@
         {% render_as_template html_string %}
     </div>
     {% else %}
+    <input class="data-template-format" type="hidden" value="{{result.template_info.format}}">
     <span class="result-title">
         {% if result.detail_url %}
         <a class="title" href="{{ result.detail_url }}">{{ result.title }}</a>
