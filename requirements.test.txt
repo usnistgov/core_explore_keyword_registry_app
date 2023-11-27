@@ -1,1 +1,1 @@
-core-explore-oaipmh-app==2.6.*
+core-explore-oaipmh-app==2.7.*
