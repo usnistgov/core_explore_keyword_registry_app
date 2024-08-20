@@ -1,5 +1,6 @@
 """Core Explore Keyword Registry App views
 """
+
 import json
 
 import core_main_registry_app.utils.refinement.mongo_query as mongo_query_api
@@ -264,6 +265,7 @@ class KeywordSearchRegistryView(KeywordSearchView):
         )
         dict_category_role = {}
         dict_refinements = {}
+
         for custom_resource in custom_resources:
             if (
                 custom_resource_api._is_custom_resource_type_resource(
@@ -271,14 +273,16 @@ class KeywordSearchRegistryView(KeywordSearchView):
                 )
                 and custom_resource.display_icon
             ):
-                dict_category_role[
-                    custom_resource.role_type.split(":")[0]
-                ] = custom_resource.slug
+                dict_category_role[custom_resource.role_type.split(":")[0]] = (
+                    custom_resource.slug
+                )
+
             dict_refinements[custom_resource.slug] = (
                 custom_resource.refinements
                 if len(custom_resource.refinements) > 0
                 else []
             )
+
         context.update(
             {
                 "custom_resources": custom_resources,

@@ -1,5 +1,6 @@
 """ Refinement Form.
 """
+
 from django import forms
 
 from core_main_registry_app.components.category import api as category_api

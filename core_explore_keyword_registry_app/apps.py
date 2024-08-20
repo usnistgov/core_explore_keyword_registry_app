@@ -1,5 +1,6 @@
 """ Apps file for setting core package when app is ready
 """
+
 import sys
 
 from django.apps import AppConfig

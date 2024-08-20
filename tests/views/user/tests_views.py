@@ -1,5 +1,6 @@
 """ Test views
 """
+
 from unittest.mock import MagicMock, patch, Mock
 
 from django.test import RequestFactory, TestCase, override_settings
