@@ -1,2 +1,2 @@
-core-main-registry-app==2.18.*
-core-explore-keyword-app==2.18.*
+core-main-registry-app==2.19.*
+core-explore-keyword-app==2.19.*
