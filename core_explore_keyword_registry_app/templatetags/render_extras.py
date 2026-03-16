@@ -1,5 +1,4 @@
-""" Render extras
-"""
+"""Render extras"""
 
 from django import template
 from django.template import Template, Variable, TemplateSyntaxError

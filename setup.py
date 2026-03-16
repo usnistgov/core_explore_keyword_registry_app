@@ -1,5 +1,4 @@
-""" Setup for core  file preview
-"""
+"""Setup for core  file preview"""
 
 from os import chdir, pardir
 from os.path import join, exists, dirname, normpath, abspath

@@ -1,5 +1,4 @@
-""" Unit tests for `core_explore_keyword_registry_app.views.user.views` package.
-"""
+"""Unit tests for `core_explore_keyword_registry_app.views.user.views` package."""
 
 from unittest import TestCase
 from unittest.mock import MagicMock, patch

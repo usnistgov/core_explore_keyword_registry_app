@@ -1,5 +1,4 @@
-""" Refinement Form.
-"""
+"""Refinement Form."""
 
 from django import forms
 

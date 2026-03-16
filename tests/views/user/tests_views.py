@@ -1,5 +1,4 @@
-""" Test views
-"""
+"""Test views"""
 
 from unittest.mock import MagicMock, patch, Mock
 

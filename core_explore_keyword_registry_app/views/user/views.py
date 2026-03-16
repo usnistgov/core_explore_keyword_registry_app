@@ -1,5 +1,4 @@
-"""Core Explore Keyword Registry App views
-"""
+"""Core Explore Keyword Registry App views"""
 
 import json
 

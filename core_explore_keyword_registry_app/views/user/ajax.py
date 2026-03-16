@@ -1,5 +1,4 @@
-""" Explore keyword registry user ajax
-"""
+"""Explore keyword registry user ajax"""
 
 import json
 import re

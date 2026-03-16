@@ -1,5 +1,4 @@
-""" Discover rules for core explore keyword registry app
-"""
+"""Discover rules for core explore keyword registry app"""
 
 from core_main_app.permissions import rights as main_rights
 from core_explore_keyword_app.permissions import (

@@ -1,5 +1,4 @@
-""" Url router for the explore keyword registry application
-"""
+"""Url router for the explore keyword registry application"""
 
 from django.urls import re_path, include
 
